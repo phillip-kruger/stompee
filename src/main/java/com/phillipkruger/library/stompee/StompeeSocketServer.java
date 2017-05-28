@@ -70,9 +70,8 @@ public class StompeeSocketServer implements LogServer {
     private String getAppName(){
         try {
             InitialContext ic = new InitialContext();
-            String moduleName = (String) ic.lookup("java:module/ModuleName");
             String appName = (String) ic.lookup("java:app/AppName");
-            return moduleName + " " + appName;
+            return appName;
         } catch (NamingException ex) {
             return "Unknown";
         }

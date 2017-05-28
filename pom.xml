@@ -46,6 +46,7 @@
         <jquery.version>3.2.1</jquery.version>
         <handlebars.version>4.0.8</handlebars.version>
         <highlightjs.version>9.10.0</highlightjs.version>
+        <fontawesome.version>4.7.0</fontawesome.version>
     </properties>
     
     <dependencies>
@@ -91,6 +92,13 @@
             <version>${highlightjs.version}</version>
             <scope>runtime</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>font-awesome</artifactId>
+            <version>${fontawesome.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -105,8 +113,8 @@
                 <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
                 <filtering>true</filtering>
                 <includes>
-                    <include>*.css</include>
-                    <include>*.html</include>
+                    <include>**/*.css</include>
+                    <include>**/*.html</include>
                 </includes>
             </resource>
             <resource>
@@ -114,8 +122,8 @@
                 <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
                 <filtering>false</filtering>
                 <excludes>
-                    <exclude>*.css</exclude>
-                    <exclude>*.html</exclude>
+                    <exclude>**/*.css</exclude>
+                    <exclude>**/*.html</exclude>
                 </excludes>
             </resource>
         </resources>
