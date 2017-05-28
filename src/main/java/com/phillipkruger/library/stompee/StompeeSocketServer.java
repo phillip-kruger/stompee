@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.websocket.OnClose;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -28,15 +30,17 @@ public class StompeeSocketServer implements LogServer {
     
     @OnOpen
     public void onOpen(Session session){
+        String appName = getAppName();
         SESSIONS.add(session);
         if(SESSIONS.size()==1)registerListener();
         
-        systemMessage("Log viewer [" + session.getId() + "] joined"); // TODO: Change to use user Id once we have it
+        systemMessage("Log viewer [" + session.getId() + "] joined " + appName); // TODO: Change to use user Id once we have it
     }
     
     @OnClose
     public void onClose(Session session){
-        systemMessage("Log viewer [" + session.getId() + "] left");
+        String appName = getAppName();
+        systemMessage("Log viewer [" + session.getId() + "] left " + appName);
         SESSIONS.remove(session);
         if(SESSIONS.isEmpty())unregisterListener();
     }
@@ -63,18 +67,26 @@ public class StompeeSocketServer implements LogServer {
         }
     }
     
+    private String getAppName(){
+        try {
+            InitialContext ic = new InitialContext();
+            String moduleName = (String) ic.lookup("java:module/ModuleName");
+            String appName = (String) ic.lookup("java:app/AppName");
+            return moduleName + " " + appName;
+        } catch (NamingException ex) {
+            return "Unknown";
+        }
+    }
     
     private void registerListener(){
         stompeeHandler = new StompeeHandler(this);
         stompeeHandler.setFormatter(formatter);
         Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
-        //logger.setUseParentHandlers(false);
         logger.addHandler(stompeeHandler);
     }
     
     private void unregisterListener(){
         Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
-        //logger.setUseParentHandlers(true);
         logger.removeHandler(stompeeHandler);
         stompeeHandler = null;
     }
