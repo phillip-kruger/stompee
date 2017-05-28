@@ -1,11 +1,14 @@
-body {
-    background-color: #FFFFFF;
+body { 
+    background-image: url("logo.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: bottom right; 
 }
 .ui.menu .item img.logo {
     margin-right: 1.5em;
 }
 .main.container {
-    margin-top: 7em;
+    margin-top: 5em;
 }
 .wireframe {
     margin-top: 2em;

@@ -1,5 +1,5 @@
 /* 
- * Javascript file for indexer.html
+ * Javascript file for stompee.html
  */
 var contextRoot = getContextRoot();
 
@@ -13,8 +13,7 @@ function getContextRoot() {
     
     var u = base.substr(0,base.indexOf("/", base.indexOf("/", base.indexOf("//") + 2) + 1));
     var u = u.substr(u.indexOf("//")+2);
-    var u = u.substr(u.indexOf("/"));
-    var contextRoot = u.substr(0,u.indexOf("-web"));
+    var contextRoot = u.substr(u.indexOf("/"));
     return contextRoot;
 }
 
@@ -52,7 +51,7 @@ function openSocket(){
         new_uri = "ws:";
     }
     new_uri += "//" + loc.host;
-    new_uri += contextRoot + "-indexer/indexer-log";
+    new_uri += contextRoot + "/websocket/stompee";
     webSocket = new WebSocket(new_uri);
 
     /**
@@ -73,7 +72,7 @@ function openSocket(){
         var timestamp = new Date(json.timestamp);
         var timestring = timestamp.toLocaleTimeString();
 
-        writeResponse("<span class=' text " + json.level + "'>" + json.hostname + ":" + json.port + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
+        writeResponse("<span class=' text " + json.level + "'>" + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
     };
 
     webSocket.onclose = function(){

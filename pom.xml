@@ -94,25 +94,31 @@
     </dependencies>
     
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <webResources>
-                        <resource>
-                            <directory>${basedir}/src/main/webapp</directory>
-                            <filtering>true</filtering>
-                            <includes>
-                                <include>*.css</include>
-                                <include>*.html</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
-        </plugins>
+                
+        <!-- Copy all web content files META-INF folder, and push it though a filter to replace maven properties -->
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/webapp</directory>
+                <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
+                <filtering>true</filtering>
+                <includes>
+                    <include>*.css</include>
+                    <include>*.html</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/webapp</directory>
+                <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>*.css</exclude>
+                    <exclude>*.html</exclude>
+                </excludes>
+            </resource>
+        </resources>
     </build>
     
 </project>

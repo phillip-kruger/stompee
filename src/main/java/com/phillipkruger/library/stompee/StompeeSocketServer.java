@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -22,9 +21,10 @@ import lombok.extern.java.Log;
  */
 @Log
 @ServerEndpoint("/websocket/stompee") 
-public class StompeeSocketServer extends Handler {
+public class StompeeSocketServer implements LogServer {
    
     private final JsonFormatter formatter = new JsonFormatter();
+    private StompeeHandler stompeeHandler;
     
     @OnOpen
     public void onOpen(Session session){
@@ -41,13 +41,6 @@ public class StompeeSocketServer extends Handler {
         if(SESSIONS.isEmpty())unregisterListener();
     }
     
-    @Override
-    public void publish(LogRecord logRecord) {
-        String msg = getFormatter().format(logRecord);
-        log.severe("stompee >>>>>>>>>>>>>>> " + msg);
-        logMessage(msg);
-    }
- 
     private void systemMessage(String message){
         systemMessage(Level.INFO,message);
     }
@@ -57,7 +50,8 @@ public class StompeeSocketServer extends Handler {
         logMessage(formatter.format(logRecored));
     }
     
-    private void logMessage(String logline){
+    @Override
+    public void logMessage(String logline){
         Iterator<Session> iterator = SESSIONS.iterator();
         while (iterator.hasNext()) {
             try {
@@ -71,22 +65,19 @@ public class StompeeSocketServer extends Handler {
     
     
     private void registerListener(){
-        Logger logger = Logger.getGlobal(); // TODO: Allow passing in of log name  
+        stompeeHandler = new StompeeHandler(this);
+        stompeeHandler.setFormatter(formatter);
+        Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
         //logger.setUseParentHandlers(false);
-        logger.addHandler(this);
+        logger.addHandler(stompeeHandler);
     }
     
     private void unregisterListener(){
-        Logger logger = Logger.getGlobal(); // TODO: Allow passing in of log name  
+        Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
         //logger.setUseParentHandlers(true);
-        logger.removeHandler(this);
+        logger.removeHandler(stompeeHandler);
+        stompeeHandler = null;
     }
-    
-    @Override
-    public void flush() {} 
-
-    @Override
-    public void close() throws SecurityException {}
     
     private static final Queue<Session> SESSIONS = new ConcurrentLinkedQueue<>();
 }

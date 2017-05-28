@@ -44,8 +44,6 @@ public class JsonFormatter extends Formatter {
         if(logRecord.getSourceMethodName()!=null)builder.add(SOURCE_METHOD_NAME, logRecord.getSourceMethodName());    
         builder.add(THREAD_ID, logRecord.getThreadID());
         builder.add(TIMESTAMP, logRecord.getMillis());
-        //builder.add(HOSTNAME, serverInfo.getHostname());
-        //builder.add(PORT, serverInfo.getHttpPort());
         return builder.build();
     }
     
@@ -56,6 +54,4 @@ public class JsonFormatter extends Formatter {
     private static final String SOURCE_METHOD_NAME = "sourceMethodName";
     private static final String THREAD_ID = "threadId";
     private static final String TIMESTAMP = "timestamp";
-    //private static final String PORT = "port";
-    //private static final String HOSTNAME = "hostname";
 }
