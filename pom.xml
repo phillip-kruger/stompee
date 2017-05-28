@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.phillipkruger.library</groupId>
+    <artifactId>stompee</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <name>stompee</name>
+    <url>https://github.com/phillip-kruger/stompee</url>
+    <description>A library to view the log in Java EE systems</description>
+    
+    <scm>
+        <connection>scm:git:https://github.com/phillip-kruger/stompee.git</connection>
+        <url>https://github.com/phillip-kruger/stompee</url>        
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>api.wiki</id>
+            <url>https://github.com/phillip-kruger/stompee/wiki</url>
+        </site>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <name>Phillip Kruger</name>
+            <email>phillip.kruger@gmail.com</email>
+            <organizationUrl>http://www.phillip-kruger.com</organizationUrl>
+        </developer>
+    </developers>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Java version -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        
+        <!-- JEE Platform -->        
+        <jee.version>7.0</jee.version>
+        
+        <lombok.version>1.16.16</lombok.version>
+        
+        <semantic-ui.version>2.2.10</semantic-ui.version>
+        <jquery.version>3.2.1</jquery.version>
+        <handlebars.version>4.0.8</handlebars.version>
+        <highlightjs.version>9.10.0</highlightjs.version>
+    </properties>
+    
+    <dependencies>
+        <!-- Jave ee -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>${jee.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Webjars: see http://www.webjars.org/documentation -->
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>semantic-ui</artifactId>
+            <version>${semantic-ui.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>jquery</artifactId>
+            <version>${jquery.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>${handlebars.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>highlightjs</artifactId>
+            <version>${highlightjs.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/src/main/webapp</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>*.css</include>
+                                <include>*.html</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
