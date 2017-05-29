@@ -1,6 +1,7 @@
 /* 
  * Javascript file for stompee.html
  */
+
 var contextRoot = getContextRoot();
 
 function getContextRoot() {
@@ -68,11 +69,29 @@ function openSocket(){
     };
 
     webSocket.onmessage = function(event){
-        var json = JSON.parse(event.data);
-        var timestamp = new Date(json.timestamp);
-        var timestring = timestamp.toLocaleTimeString();
-
-        writeResponse("<span class=' text " + json.level + "'>" + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
+        try{
+            // JSON Message
+            var json = JSON.parse(event.data);
+            
+            switch(json.messageType) {
+                case "log":
+                    var timestamp = new Date(json.timestamp);
+                    var timestring = timestamp.toLocaleTimeString();
+                    writeResponse("<span class=' text " + json.level + "'>" + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
+                    break;
+                case "system":
+                    console.log("System message " + event.data);
+                    $("#applicationName").html("<h2>" + json.applicationName + "</h2>");
+                    console.log("Changed application name to " + json.applicationName);
+                    break;
+        
+            }
+            
+            
+        }catch(e){
+            // Unknown message ?
+            console.log("Unknown message " + event.data);
+        }
     };
 
     webSocket.onclose = function(){
@@ -82,6 +101,8 @@ function openSocket(){
     $('pre code').each(function(i, block) {
         hljs.highlightBlock(block);
     });
+    
+    
 }
 
 function closeSocket(){
@@ -90,4 +111,12 @@ function closeSocket(){
 
 function writeResponse(text){
     messages.innerHTML += text + "<br/>";
+}
+
+function startLog(){
+    webSocket.send("start");
+}
+
+function stopLog(){
+    webSocket.send("stop");
 }

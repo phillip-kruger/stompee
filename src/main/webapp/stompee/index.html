@@ -20,26 +20,46 @@
         <link rel="stylesheet" type="text/css" href="../webjars/semantic-ui/${semantic-ui.version}/dist/semantic.min.css">
         <!-- Highlight -->
         <link rel="stylesheet" type="text/css" href="../webjars/highlightjs/${highlightjs.version}/styles/androidstudio.css">
-        <!-- Font Awesome -->
-        <link rel="stylesheet" type="text/css" href="../webjars/font-awesome/${fontawesome.version}/css/font-awesome.min.css">
         <!-- Our own crap -->
         <link rel="stylesheet" type="text/css" href="stompee.css">
         
     </head>
     
     <body>
-        <div id="menubar"></div>
+        <!-- Menubar -->
+        <div class="ui fixed borderless menu">
+            <div class="ui container">
+                <div class="header item"><h2><a href="">Stompee</a></h2></div>
+                <div class="item">
+                    <div class="ui icon input">
+                        <input type="text" placeholder="Logger name...">
+                            <i class="filter link icon"></i>
+                    </div>
+                </div>
+
+                <div class="right menu">
+                    <a class="item"><i class="play icon"></i> Start</a>
+                    <div class="header item" id="applicationName"></div>
+                </div>
+
+            </div>
+        </div>
+
 
         <div class="ui main container">
             <!-- Server responses get written here -->
             <pre><code class="bash" id="messages"></code></pre>
         </div>    
         
-        <div id="footer"></div>
+        <!-- footer -->
+        <div class="ui vertical footer segment">
+            <div class="ui center aligned container">
+                <a href="https://github.com/phillip-kruger/stompee" target="_blank">Stompee</a>  .  Web log viewer for Java EE
+            </div>
+        </div>
     
         <script src="../webjars/jquery/${jquery.version}/dist/jquery.min.js"></script>
         <script src="../webjars/semantic-ui/${semantic-ui.version}/dist/semantic.min.js"></script>
-        <script src="../webjars/handlebars/${handlebars.version}/handlebars.js"></script>
         <script src="../webjars/highlightjs/${highlightjs.version}/highlight.pack.js"></script>
        
         <script src="stompee.js"></script>

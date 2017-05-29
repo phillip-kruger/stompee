@@ -37,6 +37,7 @@ public class JsonFormatter extends Formatter {
     private JsonObject toJsonObject(LogRecord logRecord){
         String formattedMessage = formatMessage(logRecord);
         JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add(MESSAGE_TYPE, LOG);
         if(logRecord.getLoggerName()!=null)builder.add(LOGGER_NAME, logRecord.getLoggerName());
         if(logRecord.getLevel()!=null)builder.add(LEVEL, logRecord.getLevel().getName());
         if(logRecord.getMessage()!=null)builder.add(MESSAGE, formattedMessage);
@@ -47,6 +48,8 @@ public class JsonFormatter extends Formatter {
         return builder.build();
     }
     
+    private static final String LOG = "log";
+    private static final String MESSAGE_TYPE = "messageType";
     private static final String LOGGER_NAME = "loggerName";
     private static final String LEVEL = "level";
     private static final String MESSAGE = "message";

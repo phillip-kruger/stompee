@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
@@ -34,7 +35,9 @@ public class StompeeSocketServer implements LogServer {
         SESSIONS.add(session);
         if(SESSIONS.size()==1)registerListener();
         
-        systemMessage("Log viewer [" + session.getId() + "] joined " + appName); // TODO: Change to use user Id once we have it
+        //systemMessage("Log viewer [" + session.getId() + "] joined " + appName); // TODO: Change to use user Id once we have it
+        
+        reply(new SystemMessage(appName).toString(),session);
     }
     
     @OnClose
@@ -43,6 +46,17 @@ public class StompeeSocketServer implements LogServer {
         systemMessage("Log viewer [" + session.getId() + "] left " + appName);
         SESSIONS.remove(session);
         if(SESSIONS.isEmpty())unregisterListener();
+    }
+    
+    @OnMessage
+    public void onMessage(String message, Session session){
+        if("start".equalsIgnoreCase(message)){
+            
+        } else if("stop".equalsIgnoreCase(message)){
+        
+        } else {
+
+        }
     }
     
     private void systemMessage(String message){
@@ -58,12 +72,16 @@ public class StompeeSocketServer implements LogServer {
     public void logMessage(String logline){
         Iterator<Session> iterator = SESSIONS.iterator();
         while (iterator.hasNext()) {
-            try {
-                Session next = iterator.next();
-                next.getBasicRemote().sendText(logline);   
-            }catch (IllegalStateException | IOException ex) {
-                log.severe(ex.getMessage());
-            }
+            Session next = iterator.next();
+            reply(logline,next);
+        }
+    }
+    
+    private void reply(String message, Session session){
+        try {
+            session.getBasicRemote().sendText(message);   
+        }catch (IllegalStateException | IOException ex) {
+            log.severe(ex.getMessage());
         }
     }
     
