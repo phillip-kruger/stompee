@@ -1,22 +1,40 @@
 package com.phillipkruger.library.stompee;
 
+import java.io.IOException;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import lombok.AllArgsConstructor;
+import javax.websocket.Session;
+import lombok.extern.java.Log;
  
 /** 
  * Log handler for Stompee
  * @author Phillip Kruger (phillip.kruger@gmail.com)
  */
-@AllArgsConstructor
+@Log
 public class StompeeHandler extends Handler {
    
-    private final LogServer logServer;
+    private final Session session;
+    
+    public StompeeHandler(Session session){
+        this.session = session;
+        setFormatter(new JsonFormatter());
+        addThisToSession();
+    }
+    
+    private void addThisToSession(){
+        
+    }
     
     @Override
     public void publish(LogRecord logRecord) {
-        String msg = getFormatter().format(logRecord);
-        logServer.logMessage(msg);
+        if(session!=null){
+            String message = getFormatter().format(logRecord);
+            try {
+                session.getBasicRemote().sendText(message);   
+            }catch (IllegalStateException | IOException ex) {
+                log.severe(ex.getMessage());
+            }
+        }
     }
 
     @Override
@@ -25,4 +43,6 @@ public class StompeeHandler extends Handler {
     @Override
     public void close() throws SecurityException {}
  
+    
+    
 }

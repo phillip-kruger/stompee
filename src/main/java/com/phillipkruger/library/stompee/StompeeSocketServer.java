@@ -1,9 +1,10 @@
 package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -24,62 +25,77 @@ import lombok.extern.java.Log;
  */
 @Log
 @ServerEndpoint("/websocket/stompee") 
-public class StompeeSocketServer implements LogServer {
+public class StompeeSocketServer {
    
-    private final JsonFormatter formatter = new JsonFormatter();
-    private StompeeHandler stompeeHandler;
+    private final RandomNameGenerator randomNameGenerator = new RandomNameGenerator();
     
     @OnOpen
     public void onOpen(Session session){
         String appName = getAppName();
-        SESSIONS.add(session);
-        if(SESSIONS.size()==1)registerListener();
-        
-        //systemMessage("Log viewer [" + session.getId() + "] joined " + appName); // TODO: Change to use user Id once we have it
-        
-        reply(new SystemMessage(appName).toString(),session);
+        systemMessage(appName,session);
     }
     
     @OnClose
     public void onClose(Session session){
-        String appName = getAppName();
-        systemMessage("Log viewer [" + session.getId() + "] left " + appName);
-        SESSIONS.remove(session);
-        if(SESSIONS.isEmpty())unregisterListener();
+        stop(session);
     }
     
     @OnMessage
     public void onMessage(String message, Session session){
         if("start".equalsIgnoreCase(message)){
-            
+            start(session);
         } else if("stop".equalsIgnoreCase(message)){
-        
+            stop(session);
         } else {
-
+            // TODO: Log levels
         }
     }
     
-    private void systemMessage(String message){
-        systemMessage(Level.INFO,message);
-    }
-    
-    private void systemMessage(Level level,String message){
-        LogRecord logRecored = new LogRecord(level, message);
-        logMessage(formatter.format(logRecored));
-    }
-    
-    @Override
-    public void logMessage(String logline){
-        Iterator<Session> iterator = SESSIONS.iterator();
-        while (iterator.hasNext()) {
-            Session next = iterator.next();
-            reply(logline,next);
+    private void start(Session session){
+        String name = getName(session);
+        if(name == null){
+            name = randomNameGenerator.generateName();
+            registerHandler(session,name);
+            SESSIONS.put(session.getId(), session);
+            loggerMessage("Started " + name,session);
+        }else{
+            loggerMessage(name + " is already running",session);
         }
     }
     
-    private void reply(String message, Session session){
+    private void stop(Session session){
+        String name = getName(session);
+        if(name == null){
+            loggerMessage("Can not stop, not running",session);
+        }else{
+            loggerMessage("Stopped " + name + "",session);
+            unregisterHandler(session);
+            SESSIONS.remove(session.getId());
+        }
+    }
+    
+    private void loggerMessage(String message,Session session){
+        loggerMessage(Level.INFO,message,session);
+    }
+    
+    private void loggerMessage(Level level,String message,Session session){
+        LogRecord logRecored = new LogRecord(level, message);                                                                      
         try {
-            session.getBasicRemote().sendText(message);   
+            Formatter formatter = getFormatter(session);
+            if(formatter!=null){
+                session.getBasicRemote().sendText(formatter.format(logRecored));
+            }else {
+                session.getBasicRemote().sendText(message);
+            }
+        }catch (IllegalStateException | IOException ex) {
+            log.severe(ex.getMessage());
+        }
+    }
+    
+    private void systemMessage(String message,Session session){
+        String systemMessage = new SystemMessage(message).toString();
+        try {
+            session.getBasicRemote().sendText(systemMessage);
         }catch (IllegalStateException | IOException ex) {
             log.severe(ex.getMessage());
         }
@@ -95,18 +111,49 @@ public class StompeeSocketServer implements LogServer {
         }
     }
     
-    private void registerListener(){
-        stompeeHandler = new StompeeHandler(this);
-        stompeeHandler.setFormatter(formatter);
+    private Handler registerHandler(Session session,String name){
+        Handler handler = new StompeeHandler(session);
         Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
-        logger.addHandler(stompeeHandler);
+        logger.addHandler(handler);
+        session.getUserProperties().put(HANDLER, handler);
+        session.getUserProperties().put(NAME, name);
+        return handler;
     }
     
-    private void unregisterListener(){
-        Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
-        logger.removeHandler(stompeeHandler);
-        stompeeHandler = null;
+    private void unregisterHandler(Session session){
+        Handler handler = getHandler(session);
+        if(handler!=null){
+            Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
+            logger.removeHandler(handler);
+        }
+        session.getUserProperties().remove(NAME);
+        session.getUserProperties().remove(HANDLER);
     }
     
-    private static final Queue<Session> SESSIONS = new ConcurrentLinkedQueue<>();
+    private Handler getHandler(Session session){
+        Object o = session.getUserProperties().get(HANDLER);
+        if(o!=null){
+            return (Handler)o;
+        }
+        return null;
+    }
+    
+    private Formatter getFormatter(Session session){
+        Handler handler = getHandler(session);
+        if(handler!=null){
+            return handler.getFormatter();
+        }else{
+            return null;
+        }
+    }
+    
+    private String getName(Session session){
+        Object o = session.getUserProperties().get(NAME);
+        if(o==null)return null;
+        return (String)o;
+    }
+    
+    private static final String NAME = "name";
+    private static final String HANDLER = "handler";
+    private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();
 }

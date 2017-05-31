@@ -4,6 +4,22 @@
 
 var contextRoot = getContextRoot();
 
+function clearScreen(){
+    messages.innerHTML = "";
+}
+
+function startLog(){
+    $("#startIcon").addClass("disabled");
+    webSocket.send("start");
+    $("#stopIcon").removeClass("disabled");
+}
+
+function stopLog(){
+    $("#stopIcon").removeClass("disabled");
+    webSocket.send("stop");
+    $("#startIcon").addClass("disabled");
+}
+
 function getContextRoot() {
     var base = document.getElementsByTagName('base')[0];
     if (base && base.href && (base.href.length > 0)) {
@@ -17,11 +33,6 @@ function getContextRoot() {
     var contextRoot = u.substr(u.indexOf("/"));
     return contextRoot;
 }
-
-$(function(){
-    $("#menubar").load("menubar.html");
-    $("#footer").load("footer.html");
-});
 
 var webSocket;
 var messages = document.getElementById("messages");
@@ -80,14 +91,9 @@ function openSocket(){
                     writeResponse("<span class=' text " + json.level + "'>" + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
                     break;
                 case "system":
-                    console.log("System message " + event.data);
                     $("#applicationName").html("<h2>" + json.applicationName + "</h2>");
-                    console.log("Changed application name to " + json.applicationName);
                     break;
-        
             }
-            
-            
         }catch(e){
             // Unknown message ?
             console.log("Unknown message " + event.data);
