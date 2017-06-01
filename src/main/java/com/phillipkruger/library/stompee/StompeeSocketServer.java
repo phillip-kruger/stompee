@@ -113,7 +113,8 @@ public class StompeeSocketServer {
     
     private Handler registerHandler(Session session,String name){
         Handler handler = new StompeeHandler(session);
-        Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
+        // TODO: Pass in the name
+        Logger logger = Logger.getLogger("");
         logger.addHandler(handler);
         session.getUserProperties().put(HANDLER, handler);
         session.getUserProperties().put(NAME, name);
@@ -123,7 +124,8 @@ public class StompeeSocketServer {
     private void unregisterHandler(Session session){
         Handler handler = getHandler(session);
         if(handler!=null){
-            Logger logger = Logger.getLogger("com.phillipkruger.example.stompee.ExampleService"); // TODO: Allow passing in of log name  
+            // TODO: Pass in the name
+            Logger logger = Logger.getLogger("");
             logger.removeHandler(handler);
         }
         session.getUserProperties().remove(NAME);
