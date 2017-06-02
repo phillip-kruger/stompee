@@ -18,11 +18,6 @@ public class StompeeHandler extends Handler {
     public StompeeHandler(Session session){
         this.session = session;
         setFormatter(new JsonFormatter());
-        addThisToSession();
-    }
-    
-    private void addThisToSession(){
-        
     }
     
     @Override
@@ -42,7 +37,5 @@ public class StompeeHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {}
- 
-    
-    
+   
 }

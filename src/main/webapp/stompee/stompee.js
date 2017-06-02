@@ -4,22 +4,6 @@
 
 var contextRoot = getContextRoot();
 
-function clearScreen(){
-    messages.innerHTML = "";
-}
-
-function startLog(){
-    $("#startIcon").addClass("disabled");
-    webSocket.send("start");
-    $("#stopIcon").removeClass("disabled");
-}
-
-function stopLog(){
-    $("#stopIcon").removeClass("disabled");
-    webSocket.send("stop");
-    $("#startIcon").addClass("disabled");
-}
-
 function getContextRoot() {
     var base = document.getElementsByTagName('base')[0];
     if (base && base.href && (base.href.length > 0)) {
@@ -45,10 +29,6 @@ window.onbeforeunload = function() {
     closeSocket();
 };
 
-function clearScreen(){
-    messages.innerHTML = "";
-}
-
 function openSocket(){
     // Ensures only one connection is open at a time
     if(webSocket !== undefined && webSocket.readyState !== WebSocket.CLOSED){
@@ -63,7 +43,7 @@ function openSocket(){
         new_uri = "ws:";
     }
     new_uri += "//" + loc.host;
-    new_uri += contextRoot + "/websocket/stompee";
+    new_uri += contextRoot + "/socket/stompee";
     webSocket = new WebSocket(new_uri);
 
     /**
@@ -107,8 +87,6 @@ function openSocket(){
     $('pre code').each(function(i, block) {
         hljs.highlightBlock(block);
     });
-    
-    
 }
 
 function closeSocket(){
@@ -120,9 +98,50 @@ function writeResponse(text){
 }
 
 function startLog(){
-    webSocket.send("start");
+    var loggerName = $("#loggerName").val();
+    $("#startIcon").addClass("disabled");
+    $("#startIcon").prop("disabled", true);
+    $("#loggerName").addClass("disabled");
+    $("#loggerName").prop("disabled", true);
+    
+    var msg = createJsonMessage("start",loggerName);
+    webSocket.send(msg);
+    
+    $("#stopIcon").removeClass("disabled");
+    $("#stopIcon").prop("disabled", false);
 }
 
 function stopLog(){
-    webSocket.send("stop");
+    var loggerName = $("#loggerName").val();
+    $("#stopIcon").addClass("disabled");
+    $("#stopIcon").prop("disabled", true);
+    
+    var msg = createJsonMessage("stop",loggerName);
+    webSocket.send(msg);
+    
+    $("#startIcon").removeClass("disabled");
+    $("#startIcon").prop("disabled", false);
+    $("#loggerName").removeClass("disabled");
+    $("#loggerName").prop("disabled", false);
 }
+
+function createJsonMessage(doAction,loggerName){
+    var msg = {
+        action: doAction,
+        logger: loggerName
+    };
+    
+    return JSON.stringify(msg);
+    
+}
+
+function clearScreen(){
+    messages.innerHTML = "";
+}
+
+$("#loggerName").on('keyup', function (e) {
+    if (e.keyCode == 13) {
+        startLog();
+    }
+});
+

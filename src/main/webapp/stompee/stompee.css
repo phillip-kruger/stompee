@@ -35,3 +35,7 @@ body {
 .text.INFO {
     color: #C0C0C0;
 }
+.disabled {
+    pointer-events: none;
+    cursor: default;
+}

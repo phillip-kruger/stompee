@@ -1,6 +1,7 @@
 package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Formatter;
@@ -8,6 +9,9 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.websocket.OnClose;
@@ -24,8 +28,8 @@ import lombok.extern.java.Log;
  * @author Phillip Kruger (phillip.kruger@gmail.com)
  */
 @Log
-@ServerEndpoint("/websocket/stompee") 
-public class StompeeSocketServer {
+@ServerEndpoint("/socket/stompee") 
+public class StompeeSocket {
    
     private final RandomNameGenerator randomNameGenerator = new RandomNameGenerator();
     
@@ -37,39 +41,40 @@ public class StompeeSocketServer {
     
     @OnClose
     public void onClose(Session session){
-        stop(session);
+        String loggerName = (String)session.getUserProperties().get(LOGGER_NAME);
+        stop(session,loggerName);
     }
     
     @OnMessage
     public void onMessage(String message, Session session){
-        if("start".equalsIgnoreCase(message)){
-            start(session);
-        } else if("stop".equalsIgnoreCase(message)){
-            stop(session);
-        } else {
-            // TODO: Log levels
+        
+        JsonObject jo = toJsonObject(message);
+
+        String action = jo.getString("action");
+        String loggerName = jo.getString("logger");
+        
+        if(START.equalsIgnoreCase(action)){
+            start(session,loggerName);
+        } else if(STOP.equalsIgnoreCase(action)){
+            stop(session,loggerName);
         }
     }
     
-    private void start(Session session){
+    private void start(Session session,String logger){
         String name = getName(session);
         if(name == null){
             name = randomNameGenerator.generateName();
-            registerHandler(session,name);
+            registerHandler(session,name,logger);
             SESSIONS.put(session.getId(), session);
             loggerMessage("Started " + name,session);
-        }else{
-            loggerMessage(name + " is already running",session);
         }
     }
     
-    private void stop(Session session){
+    private void stop(Session session,String logger){
         String name = getName(session);
-        if(name == null){
-            loggerMessage("Can not stop, not running",session);
-        }else{
-            loggerMessage("Stopped " + name + "",session);
-            unregisterHandler(session);
+        if(name != null){
+            loggerMessage("Stopped " + name,session);
+            unregisterHandler(session,logger);
             SESSIONS.remove(session.getId());
         }
     }
@@ -104,32 +109,44 @@ public class StompeeSocketServer {
     private String getAppName(){
         try {
             InitialContext ic = new InitialContext();
-            String appName = (String) ic.lookup("java:app/AppName");
+            String appName = (String) ic.lookup(JNDI_APP_NAME);
             return appName;
         } catch (NamingException ex) {
-            return "Unknown";
+            return UNKNOWN;
         }
     }
-    
-    private Handler registerHandler(Session session,String name){
+          
+    private Handler registerHandler(Session session,String name,String loggerName){
         Handler handler = new StompeeHandler(session);
-        // TODO: Pass in the name
-        Logger logger = Logger.getLogger("");
+        
+        Logger logger = getLogger(loggerName);
         logger.addHandler(handler);
         session.getUserProperties().put(HANDLER, handler);
         session.getUserProperties().put(NAME, name);
+        session.getUserProperties().put(LOGGER_NAME, loggerName);
         return handler;
     }
     
-    private void unregisterHandler(Session session){
+    private void unregisterHandler(Session session,String loggerName){
         Handler handler = getHandler(session);
+        
         if(handler!=null){
-            // TODO: Pass in the name
-            Logger logger = Logger.getLogger("");
-            logger.removeHandler(handler);
+            Logger logger = getLogger(loggerName);
+            logger.removeHandler(handler); // TODO: What if someone else is looking at the log ? With this name ?
         }
         session.getUserProperties().remove(NAME);
         session.getUserProperties().remove(HANDLER);
+        session.getUserProperties().remove(LOGGER_NAME, loggerName);
+    }
+    
+    private Logger getLogger(String loggerName){
+        Logger logger; 
+        if(loggerName==null || loggerName.isEmpty()){        
+            logger = Logger.getLogger(DEFAULT_LOGGER);
+        }else{
+            logger = Logger.getLogger(loggerName);
+        }
+        return logger;
     }
     
     private Handler getHandler(Session session){
@@ -155,7 +172,22 @@ public class StompeeSocketServer {
         return (String)o;
     }
     
+    private JsonObject toJsonObject(String message){
+    
+        try(StringReader sr = new StringReader(message);
+            JsonReader reader = Json.createReader(sr)){
+            return reader.readObject();
+        }
+        
+    }
+    
     private static final String NAME = "name";
     private static final String HANDLER = "handler";
+    private static final String JNDI_APP_NAME = "java:app/AppName";
+    private static final String UNKNOWN = "Unknown";
+    private static final String START = "start";
+    private static final String STOP = "stop";
+    private static final String DEFAULT_LOGGER = "";
+    private static final String LOGGER_NAME = "loggerName";
     private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();
 }

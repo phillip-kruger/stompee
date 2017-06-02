@@ -24,7 +24,6 @@ public class SystemMessage {
     }
     
     private JsonObject toJsonObject(){
-        
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add(MESSAGE_TYPE, SYSTEM);
         if(applicationName!=null)builder.add(APPLICATION_NAME, applicationName);
@@ -34,7 +33,5 @@ public class SystemMessage {
     
     private static final String SYSTEM = "system";
     private static final String MESSAGE_TYPE = "messageType";
-    
     private static final String APPLICATION_NAME = "applicationName";
-    
 }
