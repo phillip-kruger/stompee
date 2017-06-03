@@ -17,24 +17,6 @@ body {
     margin: 5em 0em 0em;
     padding: 5em 0em;
 }
-.text.FINE {
-    color: #FFFFFF;
-}
-.text.FINER {
-    color: #CCCCCC;
-}
-.text.FINEST {
-    color: #CCCCCC;
-}
-.text.SEVERE {
-    color: #FF0000;
-}
-.text.WARNING {
-    color: #FFFF00;
-}
-.text.INFO {
-    color: #C0C0C0;
-}
 .disabled {
     pointer-events: none;
     cursor: default;

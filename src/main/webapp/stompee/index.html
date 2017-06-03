@@ -18,14 +18,13 @@
 
         <!-- Semantic UI -->
         <link rel="stylesheet" type="text/css" href="../webjars/semantic-ui/${semantic-ui.version}/dist/semantic.min.css">
-        <!-- Highlight -->
-        <link rel="stylesheet" type="text/css" href="../webjars/highlightjs/${highlightjs.version}/styles/androidstudio.css">
         <!-- Our own crap -->
         <link rel="stylesheet" type="text/css" href="stompee.css">
         
     </head>
     
     <body>
+        
         <!-- Menubar -->
         <div class="ui fixed borderless menu">
             <div class="ui container">
@@ -41,30 +40,39 @@
                 <a class="item" onclick="startLog();" id="startIcon"><i class="play icon"></i></a>
                 <a class="item disabled" onclick="stopLog();" id="stopIcon"><i class="stop icon"></i></a>
                 <a class="item" onclick="clearScreen();"><i class="trash outline icon"></i></a>
-
+                
                 <div class="right menu">
                     <div class="header item" id="applicationName"></div>
+                    <a class="item" href="https://github.com/phillip-kruger/stompee" target="_blank" title="Code in github"><i class="github icon"></i></a>
                 </div>
 
             </div>
         </div>
 
-        <div class="ui main container">
-            <pre><code class="bash" id="messages"></code></pre>
-        </div>    
-        
-        <!-- footer -->
-        <div class="ui vertical footer segment">
-            <div class="ui center aligned container">
-                <a href="https://github.com/phillip-kruger/stompee" target="_blank">Stompee</a> | Web log viewer for Java EE
-            </div>
+        <!-- The log -->
+        <div class="ui main container pushable">
+            <table class="ui basic sortable very compact table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Thread</th>
+                        <th>Time</th>
+                        <th>Class</th>
+                        <th>Method</th>
+                        <th>Message</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="messages">
+
+                </tbody>
+            </table>
         </div>
-    
+        
         <script src="../webjars/jquery/${jquery.version}/dist/jquery.min.js"></script>
         <script src="../webjars/semantic-ui/${semantic-ui.version}/dist/semantic.min.js"></script>
-        <script src="../webjars/highlightjs/${highlightjs.version}/highlight.pack.js"></script>
-       
-        <script src="stompee.js"></script>
         
+        <script src="stompee.js"></script>
+        <script src="tablesort.js"></script>
     </body>
 </html>

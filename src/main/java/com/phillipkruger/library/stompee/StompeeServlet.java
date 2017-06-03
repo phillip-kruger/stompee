@@ -2,7 +2,6 @@ package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.logging.LogManager;
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;

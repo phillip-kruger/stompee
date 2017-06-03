@@ -44,7 +44,6 @@
         
         <semantic-ui.version>2.2.10</semantic-ui.version>
         <jquery.version>3.2.1</jquery.version>
-        <highlightjs.version>9.10.0</highlightjs.version>
         <fontawesome.version>4.7.0</fontawesome.version>
     </properties>
     
@@ -70,18 +69,10 @@
             <version>${semantic-ui.version}</version>
             <scope>runtime</scope>
         </dependency>
-
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery</artifactId>
             <version>${jquery.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>highlightjs</artifactId>
-            <version>${highlightjs.version}</version>
             <scope>runtime</scope>
         </dependency>
         

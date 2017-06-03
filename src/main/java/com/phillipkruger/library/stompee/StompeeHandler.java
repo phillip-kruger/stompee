@@ -15,9 +15,9 @@ public class StompeeHandler extends Handler {
    
     private final Session session;
     
-    public StompeeHandler(Session session){
+    public StompeeHandler(Session session,String logger){
         this.session = session;
-        setFormatter(new JsonFormatter());
+        setFormatter(new JsonFormatter(logger));
     }
     
     @Override

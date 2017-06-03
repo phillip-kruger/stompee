@@ -3,11 +3,9 @@ package com.phillipkruger.library.stompee;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Formatter;
 import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -31,8 +29,6 @@ import lombok.extern.java.Log;
 @ServerEndpoint("/socket/stompee") 
 public class StompeeSocket {
    
-    private final RandomNameGenerator randomNameGenerator = new RandomNameGenerator();
-    
     @OnOpen
     public void onOpen(Session session){
         String appName = getAppName();
@@ -61,39 +57,19 @@ public class StompeeSocket {
     }
     
     private void start(Session session,String logger){
-        String name = getName(session);
-        if(name == null){
-            name = randomNameGenerator.generateName();
-            registerHandler(session,name,logger);
+        String uuid = getUuid(session);
+        if(uuid == null){
+            uuid = UUID.randomUUID().toString();
+            registerHandler(session,uuid,logger);
             SESSIONS.put(session.getId(), session);
-            loggerMessage("Started " + name,session);
         }
     }
     
     private void stop(Session session,String logger){
-        String name = getName(session);
+        String name = getUuid(session);
         if(name != null){
-            loggerMessage("Stopped " + name,session);
             unregisterHandler(session,logger);
             SESSIONS.remove(session.getId());
-        }
-    }
-    
-    private void loggerMessage(String message,Session session){
-        loggerMessage(Level.INFO,message,session);
-    }
-    
-    private void loggerMessage(Level level,String message,Session session){
-        LogRecord logRecored = new LogRecord(level, message);                                                                      
-        try {
-            Formatter formatter = getFormatter(session);
-            if(formatter!=null){
-                session.getBasicRemote().sendText(formatter.format(logRecored));
-            }else {
-                session.getBasicRemote().sendText(message);
-            }
-        }catch (IllegalStateException | IOException ex) {
-            log.severe(ex.getMessage());
         }
     }
     
@@ -116,13 +92,13 @@ public class StompeeSocket {
         }
     }
           
-    private Handler registerHandler(Session session,String name,String loggerName){
-        Handler handler = new StompeeHandler(session);
+    private Handler registerHandler(Session session,String uuid,String loggerName){
+        Handler handler = new StompeeHandler(session,loggerName);
         
         Logger logger = getLogger(loggerName);
         logger.addHandler(handler);
         session.getUserProperties().put(HANDLER, handler);
-        session.getUserProperties().put(NAME, name);
+        session.getUserProperties().put(ID, uuid);
         session.getUserProperties().put(LOGGER_NAME, loggerName);
         return handler;
     }
@@ -134,7 +110,7 @@ public class StompeeSocket {
             Logger logger = getLogger(loggerName);
             logger.removeHandler(handler); // TODO: What if someone else is looking at the log ? With this name ?
         }
-        session.getUserProperties().remove(NAME);
+        session.getUserProperties().remove(ID);
         session.getUserProperties().remove(HANDLER);
         session.getUserProperties().remove(LOGGER_NAME, loggerName);
     }
@@ -157,17 +133,8 @@ public class StompeeSocket {
         return null;
     }
     
-    private Formatter getFormatter(Session session){
-        Handler handler = getHandler(session);
-        if(handler!=null){
-            return handler.getFormatter();
-        }else{
-            return null;
-        }
-    }
-    
-    private String getName(Session session){
-        Object o = session.getUserProperties().get(NAME);
+    private String getUuid(Session session){
+        Object o = session.getUserProperties().get(ID);
         if(o==null)return null;
         return (String)o;
     }
@@ -181,7 +148,7 @@ public class StompeeSocket {
         
     }
     
-    private static final String NAME = "name";
+    private static final String ID = "uuid";
     private static final String HANDLER = "handler";
     private static final String JNDI_APP_NAME = "java:app/AppName";
     private static final String UNKNOWN = "Unknown";

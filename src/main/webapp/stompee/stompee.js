@@ -23,6 +23,7 @@ var messages = document.getElementById("messages");
 
 $('document').ready(function(){
     openSocket();
+    $('table').tablesort();
 });
 
 window.onbeforeunload = function() {
@@ -68,7 +69,31 @@ function openSocket(){
                 case "log":
                     var timestamp = new Date(json.timestamp);
                     var timestring = timestamp.toLocaleTimeString();
-                    writeResponse("<span class=' text " + json.level + "'>" + " (" + json.threadId + ")&nbsp;&nbsp;" + timestring + "|&nbsp;&nbsp;" + json.message + "</span>");
+                    var level = getClassLogLevel(json.level);
+                    var icon = getExceptionIcon(json);
+                    var tid = json.threadId;
+                    var msg = json.message;
+                    var sourceClassName = json.sourceClassName;
+                    var sourceMethodName = json.sourceMethodName;
+                    var sequenceNumber = json.sequenceNumber;
+                    
+                    writeResponse("<tr class='" + level + "'>\n\
+                                    <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
+                                    <td>" + tid + "</td>\n\
+                                    <td>" + timestring + "</td>\n\
+                                    <td>" + sourceClassName + "</td>\n\
+                                    <td>" + sourceMethodName + "</td>\n\
+                                    <td>" + msg +"</td>\n\
+                                    <td>" + icon + "</td>\n\
+                                    </tr>");
+                    
+                    if(json.stacktrace){
+                        for (var i in json.stacktrace) {
+                            var stacktrace = enhanceStacktrace(json.loggerName, json.stacktrace[i]);
+                            writeResponse("<tr style='display: none;' id='" + sequenceNumber + "'><td>" + sequenceNumber + "</td><td class='active' colspan='6'>" + stacktrace + "</td></tr>");
+                        }
+                    }
+                    
                     break;
                 case "system":
                     $("#applicationName").html("<h2>" + json.applicationName + "</h2>");
@@ -89,12 +114,49 @@ function openSocket(){
     });
 }
 
+function getClassLogLevel(level){
+    if(level == "WARNING")return "warning";
+    if(level == "SEVERE")return "error";
+    if(level == "INFO")return "positive";
+    if(level == "FINE")return "blue";
+    if(level == "FINER")return "blue"; // TODO: Find better colors
+    if(level == "FINEST")return "blue"; // TODO: Find better colors
+    return level;
+}
+
+function getExceptionIcon(json){
+    if(json.stacktrace){
+        return "<i style='cursor:pointer;' class='warning sign icon' onclick='toggleException(" + json.sequenceNumber + ")'></i>";
+    }
+    return "";
+}
+
+function enhanceStacktrace(loggerName, stacktrace){
+    var lines = stacktrace.split('\n');
+    for(var i = 0;i < lines.length;i++){
+        
+        console.log(">> " + loggerName + " = " + lines[i]);
+    }
+    return stacktrace;
+}
+
+function toggleException(sequenceNumber){
+    var element = document.getElementById(sequenceNumber);
+    var result_style = element.style;
+    
+    if(result_style.display == ''){
+        result_style.display = "none";
+    }else{
+        result_style.display = '';
+    }
+}
+
 function closeSocket(){
     webSocket.close();
 }
 
 function writeResponse(text){
-    messages.innerHTML += text + "<br/>";
+    messages.innerHTML += text;
 }
 
 function startLog(){

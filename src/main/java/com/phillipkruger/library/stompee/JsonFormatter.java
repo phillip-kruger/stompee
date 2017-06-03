@@ -1,15 +1,20 @@
 package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 
 /**
@@ -17,8 +22,9 @@ import lombok.extern.java.Log;
  * @author Phillip Kruger (phillip.kruger@gmail.com)
  */
 @Log
-@NoArgsConstructor
+@AllArgsConstructor
 public class JsonFormatter extends Formatter {
+    private String loggerName;
     
     @Override
     public String format(final LogRecord logRecord) {
@@ -38,16 +44,46 @@ public class JsonFormatter extends Formatter {
         String formattedMessage = formatMessage(logRecord);
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add(MESSAGE_TYPE, LOG);
-        if(logRecord.getLoggerName()!=null)builder.add(LOGGER_NAME, logRecord.getLoggerName());
+        if(logRecord.getLoggerName()!=null)builder.add(LOGGER_NAME, loggerName);
         if(logRecord.getLevel()!=null)builder.add(LEVEL, logRecord.getLevel().getName());
         if(logRecord.getMessage()!=null)builder.add(MESSAGE, formattedMessage);
         if(logRecord.getSourceClassName()!=null)builder.add(SOURCE_CLASS_NAME, logRecord.getSourceClassName());
-        if(logRecord.getSourceMethodName()!=null)builder.add(SOURCE_METHOD_NAME, logRecord.getSourceMethodName());    
+        if(logRecord.getSourceMethodName()!=null)builder.add(SOURCE_METHOD_NAME, logRecord.getSourceMethodName());
+        if(logRecord.getThrown()!=null)builder.add(STACKTRACE, getStacktraces(logRecord.getThrown()));
         builder.add(THREAD_ID, logRecord.getThreadID());
         builder.add(TIMESTAMP, logRecord.getMillis());
+        builder.add(SEQUENCE_NUMBER, logRecord.getSequenceNumber());
         return builder.build();
     }
     
+    
+    private JsonArray getStacktraces(Throwable t){
+        List<String> traces = new LinkedList<>();
+        addStacktrace(traces, t);
+        
+        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+        for(String trace:traces){
+            arrayBuilder.add(trace);
+        }
+        return arrayBuilder.build();
+    }
+    
+    private void addStacktrace(List<String> traces,Throwable t){
+        traces.add(getStacktrace(t));
+        if(t.getCause()!=null)addStacktrace(traces, t.getCause());
+    }
+    
+    private String getStacktrace(Throwable t){
+        try(StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw)){
+            t.printStackTrace(pw);
+            return sw.toString();
+        } catch (IOException ex) {
+            log.log(Level.WARNING, "Can not create stacktrace [{0}]", ex.getMessage());
+            return null;
+        }
+    }
+   
     private static final String LOG = "log";
     private static final String MESSAGE_TYPE = "messageType";
     private static final String LOGGER_NAME = "loggerName";
@@ -57,4 +93,6 @@ public class JsonFormatter extends Formatter {
     private static final String SOURCE_METHOD_NAME = "sourceMethodName";
     private static final String THREAD_ID = "threadId";
     private static final String TIMESTAMP = "timestamp";
+    private static final String STACKTRACE = "stacktrace";
+    private static final String SEQUENCE_NUMBER = "sequenceNumber";
 }
