@@ -3,6 +3,14 @@
  */
 
 var contextRoot = getContextRoot();
+var webSocket;
+var messages = document.getElementById("messages");
+
+$('document').ready(function(){
+    openSocket();
+    $('table').tablesort();
+});
+
 
 function getContextRoot() {
     var base = document.getElementsByTagName('base')[0];
@@ -18,17 +26,7 @@ function getContextRoot() {
     return contextRoot;
 }
 
-var webSocket;
-var messages = document.getElementById("messages");
 
-$('document').ready(function(){
-    openSocket();
-    $('table').tablesort();
-});
-
-window.onbeforeunload = function() {
-    closeSocket();
-};
 
 function openSocket(){
     // Ensures only one connection is open at a time
@@ -61,7 +59,7 @@ function openSocket(){
     };
 
     webSocket.onmessage = function(event){
-        try{
+        try {
             // JSON Message
             var json = JSON.parse(event.data);
             
@@ -69,28 +67,29 @@ function openSocket(){
                 case "log":
                     var timestamp = new Date(json.timestamp);
                     var timestring = timestamp.toLocaleTimeString();
+                    var datestring = timestamp.toLocaleDateString();
                     var level = getClassLogLevel(json.level);
-                    var icon = getExceptionIcon(json);
+                    //var icon = getExceptionIcon(json);
                     var tid = json.threadId;
-                    var msg = json.message;
+                    var msg = getMessage(json);
                     var sourceClassName = json.sourceClassName;
+                    var sourceClassNameFull = json.sourceClassNameFull;
                     var sourceMethodName = json.sourceMethodName;
                     var sequenceNumber = json.sequenceNumber;
                     
                     writeResponse("<tr class='" + level + "'>\n\
                                     <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
                                     <td>" + tid + "</td>\n\
-                                    <td>" + timestring + "</td>\n\
-                                    <td>" + sourceClassName + "</td>\n\
+                                    <td data-tooltip='" + datestring + "' data-position='top left'>" + timestring + "</td>\n\
+                                    <td data-tooltip='" + sourceClassNameFull + "' data-position='top left'>" + sourceClassName + "</td>\n\
                                     <td>" + sourceMethodName + "</td>\n\
-                                    <td>" + msg +"</td>\n\
-                                    <td>" + icon + "</td>\n\
-                                    </tr>");
+                                    <td>" + msg + "</td>\n\
+                                 </tr>");
                     
                     if(json.stacktrace){
                         for (var i in json.stacktrace) {
                             var stacktrace = enhanceStacktrace(json.loggerName, json.stacktrace[i]);
-                            writeResponse("<tr style='display: none;' id='" + sequenceNumber + "'><td>" + sequenceNumber + "</td><td class='active' colspan='6'>" + stacktrace + "</td></tr>");
+                            writeResponse("<tr style='display: none;' id='" + sequenceNumber + "'><td>" + sequenceNumber + "</td><td colspan='6'>" + stacktrace + "</td></tr>");
                         }
                     }
                     
@@ -100,8 +99,7 @@ function openSocket(){
                     break;
             }
         }catch(e){
-            // Unknown message ?
-            console.log("Unknown message " + event.data);
+            console.log("Unknown message " + e.message);
         }
     };
 
@@ -124,20 +122,29 @@ function getClassLogLevel(level){
     return level;
 }
 
-function getExceptionIcon(json){
+function getMessage(json){
     if(json.stacktrace){
-        return "<i style='cursor:pointer;' class='warning sign icon' onclick='toggleException(" + json.sequenceNumber + ")'></i>";
+        return "<span style='cursor:pointer;' onclick='toggleException(" + json.sequenceNumber + ")'><i class='warning sign icon'></i>" + json.message + "</span>";
     }
-    return "";
+    return json.message;
 }
 
 function enhanceStacktrace(loggerName, stacktrace){
+    var enhanceStacktrace = [];
     var lines = stacktrace.split('\n');
     for(var i = 0;i < lines.length;i++){
+        var line = lines[i].trim();
         
-        console.log(">> " + loggerName + " = " + lines[i]);
+        var startWithAt = line.startsWith("at ");
+        if(!startWithAt)line = '<b>' + line + '</b>';
+        
+        var isMyClass = line.includes(loggerName);
+        if(isMyClass)line = '<span class="red text">' + line + '</span>';
+        
+        enhanceStacktrace.push(line + '<br/>');
     }
-    return stacktrace;
+    var newStacktrace = enhanceStacktrace.join('');
+    return newStacktrace;
 }
 
 function toggleException(sequenceNumber){
@@ -207,3 +214,6 @@ $("#loggerName").on('keyup', function (e) {
     }
 });
 
+window.onbeforeunload = function() {
+    closeSocket();
+};

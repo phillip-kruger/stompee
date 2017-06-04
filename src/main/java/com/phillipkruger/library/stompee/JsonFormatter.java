@@ -47,7 +47,11 @@ public class JsonFormatter extends Formatter {
         if(logRecord.getLoggerName()!=null)builder.add(LOGGER_NAME, loggerName);
         if(logRecord.getLevel()!=null)builder.add(LEVEL, logRecord.getLevel().getName());
         if(logRecord.getMessage()!=null)builder.add(MESSAGE, formattedMessage);
-        if(logRecord.getSourceClassName()!=null)builder.add(SOURCE_CLASS_NAME, logRecord.getSourceClassName());
+        
+        if(logRecord.getSourceClassName()!=null){
+            builder.add(SOURCE_CLASS_NAME_FULL, logRecord.getSourceClassName());
+            builder.add(SOURCE_CLASS_NAME, getJustClassName(logRecord.getSourceClassName()));
+        }
         if(logRecord.getSourceMethodName()!=null)builder.add(SOURCE_METHOD_NAME, logRecord.getSourceMethodName());
         if(logRecord.getThrown()!=null)builder.add(STACKTRACE, getStacktraces(logRecord.getThrown()));
         builder.add(THREAD_ID, logRecord.getThreadID());
@@ -84,15 +88,22 @@ public class JsonFormatter extends Formatter {
         }
     }
    
+    private String getJustClassName(String fullName){
+        int lastDot = fullName.lastIndexOf(DOT) + 1;
+        return fullName.substring(lastDot);
+    }
+    
     private static final String LOG = "log";
     private static final String MESSAGE_TYPE = "messageType";
     private static final String LOGGER_NAME = "loggerName";
     private static final String LEVEL = "level";
     private static final String MESSAGE = "message";
+    private static final String SOURCE_CLASS_NAME_FULL = "sourceClassNameFull";
     private static final String SOURCE_CLASS_NAME = "sourceClassName";
     private static final String SOURCE_METHOD_NAME = "sourceMethodName";
     private static final String THREAD_ID = "threadId";
     private static final String TIMESTAMP = "timestamp";
     private static final String STACKTRACE = "stacktrace";
     private static final String SEQUENCE_NUMBER = "sequenceNumber";
+    private static final String DOT = ".";
 }

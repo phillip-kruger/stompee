@@ -21,3 +21,6 @@ body {
     pointer-events: none;
     cursor: default;
 }
+.text.red {
+    color: #D95C5C;
+}
