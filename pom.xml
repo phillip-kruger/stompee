@@ -44,7 +44,6 @@
         
         <semantic-ui.version>2.2.10</semantic-ui.version>
         <jquery.version>3.2.1</jquery.version>
-        <fontawesome.version>4.7.0</fontawesome.version>
     </properties>
     
     <dependencies>

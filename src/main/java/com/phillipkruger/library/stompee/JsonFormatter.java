@@ -24,7 +24,7 @@ import lombok.extern.java.Log;
 @Log
 @AllArgsConstructor
 public class JsonFormatter extends Formatter {
-    private String loggerName;
+    private final String loggerName;
     
     @Override
     public String format(final LogRecord logRecord) {
@@ -66,9 +66,9 @@ public class JsonFormatter extends Formatter {
         addStacktrace(traces, t);
         
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        for(String trace:traces){
+        traces.forEach((trace) -> {
             arrayBuilder.add(trace);
-        }
+        });
         return arrayBuilder.build();
     }
     

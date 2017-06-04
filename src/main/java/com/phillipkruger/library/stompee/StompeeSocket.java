@@ -2,10 +2,12 @@ package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -32,13 +34,12 @@ public class StompeeSocket {
     @OnOpen
     public void onOpen(Session session){
         String appName = getAppName();
-        systemMessage(appName,session);
+        startupMessage(appName,session);
     }
     
     @OnClose
     public void onClose(Session session){
-        String loggerName = (String)session.getUserProperties().get(LOGGER_NAME);
-        stop(session,loggerName);
+        stop(session);
     }
     
     @OnMessage
@@ -46,13 +47,13 @@ public class StompeeSocket {
         
         JsonObject jo = toJsonObject(message);
 
-        String action = jo.getString("action");
-        String loggerName = jo.getString("logger");
+        String action = jo.getString(ACTION);
+        String loggerName = jo.getString(LOGGER);
         
         if(START.equalsIgnoreCase(action)){
             start(session,loggerName);
         } else if(STOP.equalsIgnoreCase(action)){
-            stop(session,loggerName);
+            stop(session);
         }
     }
     
@@ -60,23 +61,35 @@ public class StompeeSocket {
         String uuid = getUuid(session);
         if(uuid == null){
             uuid = UUID.randomUUID().toString();
-            registerHandler(session,uuid,logger);
+            Map<Level,Boolean> levelMap = registerHandler(session,uuid,logger);
             SESSIONS.put(session.getId(), session);
+            // TODO: Reply with the current log levels
+            logLevelMessage(levelMap,session);
         }
     }
     
-    private void stop(Session session,String logger){
+    private void stop(Session session){
         String name = getUuid(session);
         if(name != null){
-            unregisterHandler(session,logger);
+            unregisterHandler(session);
             SESSIONS.remove(session.getId());
+            // TODO: Restore the original log levels
         }
     }
     
-    private void systemMessage(String message,Session session){
-        String systemMessage = new SystemMessage(message).toString();
+    private void startupMessage(String message,Session session){
+        String startupMessage = new StartupMessage(message).toString();
         try {
-            session.getBasicRemote().sendText(systemMessage);
+            session.getBasicRemote().sendText(startupMessage);
+        }catch (IllegalStateException | IOException ex) {
+            log.severe(ex.getMessage());
+        }
+    }
+    
+    private void logLevelMessage(Map<Level,Boolean> message,Session session){
+        String initLogLevelMessage = new InitialLogLevelMessage(message).toString();
+        try {
+            session.getBasicRemote().sendText(initLogLevelMessage);
         }catch (IllegalStateException | IOException ex) {
             log.severe(ex.getMessage());
         }
@@ -92,27 +105,31 @@ public class StompeeSocket {
         }
     }
           
-    private Handler registerHandler(Session session,String uuid,String loggerName){
+    private Map<Level,Boolean> registerHandler(Session session,String uuid,String loggerName){
         Handler handler = new StompeeHandler(session,loggerName);
         
         Logger logger = getLogger(loggerName);
         logger.addHandler(handler);
+        Map<Level,Boolean> levelMap = getLoggerMap(logger);
         session.getUserProperties().put(HANDLER, handler);
         session.getUserProperties().put(ID, uuid);
         session.getUserProperties().put(LOGGER_NAME, loggerName);
-        return handler;
+        session.getUserProperties().put(LEVEL_MAP, levelMap);
+        return levelMap;
     }
     
-    private void unregisterHandler(Session session,String loggerName){
+    private void unregisterHandler(Session session){
         Handler handler = getHandler(session);
-        
+        String loggerName = (String)session.getUserProperties().get(LOGGER_NAME);
         if(handler!=null){
             Logger logger = getLogger(loggerName);
-            logger.removeHandler(handler); // TODO: What if someone else is looking at the log ? With this name ?
+            logger.removeHandler(handler); 
         }
         session.getUserProperties().remove(ID);
         session.getUserProperties().remove(HANDLER);
-        session.getUserProperties().remove(LOGGER_NAME, loggerName);
+        session.getUserProperties().remove(LOGGER_NAME);
+        session.getUserProperties().remove(LEVEL_MAP);
+        // TODO: Restore level map
     }
     
     private Logger getLogger(String loggerName){
@@ -133,6 +150,18 @@ public class StompeeSocket {
         return null;
     }
     
+    private Map<Level,Boolean> getLoggerMap(Logger logger){
+        Map<Level,Boolean> levelMap = new HashMap<>();
+        levelMap.put(Level.CONFIG, logger.isLoggable(Level.CONFIG));
+        levelMap.put(Level.FINE, logger.isLoggable(Level.FINE));
+        levelMap.put(Level.FINER, logger.isLoggable(Level.FINER));
+        levelMap.put(Level.FINEST, logger.isLoggable(Level.FINEST));
+        levelMap.put(Level.INFO, logger.isLoggable(Level.INFO));
+        levelMap.put(Level.SEVERE, logger.isLoggable(Level.SEVERE));
+        levelMap.put(Level.WARNING, logger.isLoggable(Level.WARNING));
+        return levelMap;
+    }
+    
     private String getUuid(Session session){
         Object o = session.getUserProperties().get(ID);
         if(o==null)return null;
@@ -140,12 +169,10 @@ public class StompeeSocket {
     }
     
     private JsonObject toJsonObject(String message){
-    
         try(StringReader sr = new StringReader(message);
             JsonReader reader = Json.createReader(sr)){
             return reader.readObject();
         }
-        
     }
     
     private static final String ID = "uuid";
@@ -156,5 +183,8 @@ public class StompeeSocket {
     private static final String STOP = "stop";
     private static final String DEFAULT_LOGGER = "";
     private static final String LOGGER_NAME = "loggerName";
+    private static final String LEVEL_MAP = "levelMap";
+    private static final String ACTION = "action";
+    private static final String LOGGER = "logger";
     private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();
 }

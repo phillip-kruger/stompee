@@ -1,5 +1,6 @@
 /* 
  * Javascript file for stompee.html
+ * Phillip Kruger (phillip.kruger@gmail.com)
  */
 
 var contextRoot = getContextRoot();
@@ -65,37 +66,13 @@ function openSocket(){
             
             switch(json.messageType) {
                 case "log":
-                    var timestamp = new Date(json.timestamp);
-                    var timestring = timestamp.toLocaleTimeString();
-                    var datestring = timestamp.toLocaleDateString();
-                    var level = getClassLogLevel(json.level);
-                    //var icon = getExceptionIcon(json);
-                    var tid = json.threadId;
-                    var msg = getMessage(json);
-                    var sourceClassName = json.sourceClassName;
-                    var sourceClassNameFull = json.sourceClassNameFull;
-                    var sourceMethodName = json.sourceMethodName;
-                    var sequenceNumber = json.sequenceNumber;
-                    
-                    writeResponse("<tr class='" + level + "'>\n\
-                                    <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
-                                    <td>" + tid + "</td>\n\
-                                    <td data-tooltip='" + datestring + "' data-position='top left'>" + timestring + "</td>\n\
-                                    <td data-tooltip='" + sourceClassNameFull + "' data-position='top left'>" + sourceClassName + "</td>\n\
-                                    <td>" + sourceMethodName + "</td>\n\
-                                    <td>" + msg + "</td>\n\
-                                 </tr>");
-                    
-                    if(json.stacktrace){
-                        for (var i in json.stacktrace) {
-                            var stacktrace = enhanceStacktrace(json.loggerName, json.stacktrace[i]);
-                            writeResponse("<tr style='display: none;' id='" + sequenceNumber + "'><td>" + sequenceNumber + "</td><td colspan='6'>" + stacktrace + "</td></tr>");
-                        }
-                    }
-                    
+                    messageLog(json);
                     break;
-                case "system":
-                    $("#applicationName").html("<h2>" + json.applicationName + "</h2>");
+                case "startupMessage":
+                    messageStartup(json);
+                    break;
+                case "initialLogLevelMessage":
+                    messageLogLevels(json);
                     break;
             }
         }catch(e){
@@ -106,6 +83,55 @@ function openSocket(){
     webSocket.onclose = function(){
         writeResponse("Connection closed");
     };
+
+    function messageLog(json){
+        var timestamp = new Date(json.timestamp);
+        var timestring = timestamp.toLocaleTimeString();
+        var datestring = timestamp.toLocaleDateString();
+        var level = getClassLogLevel(json.level);
+        var tid = json.threadId;
+        var msg = getMessage(json);
+        var sourceClassName = json.sourceClassName;
+        var sourceClassNameFull = json.sourceClassNameFull;
+        var sourceMethodName = json.sourceMethodName;
+        var sequenceNumber = json.sequenceNumber;
+
+        writeResponse("<tr class='" + level + "'>\n\
+                        <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
+                        <td>" + tid + "</td>\n\
+                        <td data-tooltip='" + datestring + "' data-position='top left'>" + timestring + "</td>\n\
+                        <td data-tooltip='" + sourceClassNameFull + "' data-position='top left'>" + sourceClassName + "</td>\n\
+                        <td>" + sourceMethodName + "</td>\n\
+                        <td>" + msg + "</td>\n\
+                     </tr>");
+
+        if(json.stacktrace){
+            for (var i in json.stacktrace) {
+                var stacktrace = enhanceStacktrace(json.loggerName, json.stacktrace[i]);
+                writeResponse("<tr style='display: none;' id='" + sequenceNumber + "'>\n\
+                                <td colspan='7'>\n\
+                                    <div class='ui raised segment'>" + stacktrace + "</div>\n\
+                                </td>\n\
+                               </tr>");
+            }
+        }
+        
+    }
+
+    function messageStartup(json){
+        $("#applicationName").html("<h2>" + json.applicationName + "</h2>");
+    }
+
+    function messageLogLevels(json){
+        
+        console.log(">>> info " + json.logLevels.INFO);
+        console.log(">>> fine " + json.logLevels.FINE);
+        console.log(">>> finer " + json.logLevels.FINER);
+        console.log(">>> finest " + json.logLevels.FINEST);
+        console.log(">>> warning " + json.logLevels.WARNING);
+        console.log(">>> severe " + json.logLevels.SEVERE);
+        console.log(">>> config " + json.logLevels.CONFIG);
+    }
 
     $('pre code').each(function(i, block) {
         hljs.highlightBlock(block);
@@ -134,9 +160,13 @@ function enhanceStacktrace(loggerName, stacktrace){
     var lines = stacktrace.split('\n');
     for(var i = 0;i < lines.length;i++){
         var line = lines[i].trim();
-        
-        var startWithAt = line.startsWith("at ");
-        if(!startWithAt)line = '<b>' + line + '</b>';
+        if(line){
+            var startWithAt = line.startsWith("at ");
+            if(!startWithAt){
+                var parts = line.split(":");
+                line = "<a class='ui red ribbon label'>" + parts[0] + "</a><span>" + parts[1] + "</span>";
+            }
+        }
         
         var isMyClass = line.includes(loggerName);
         if(isMyClass)line = '<span class="red text">' + line + '</span>';
