@@ -2,6 +2,7 @@ package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.util.logging.LogManager;
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
@@ -18,8 +19,33 @@ import lombok.extern.java.Log;
 @WebServlet(value="/servlet/stompee", name="StompeeServlet") 
 public class StompeeServlet extends GenericServlet {
 
+    private static final String ACTION = "action";
+    
+    private static final String NAME = "name";
+    private static final String GET_ALL_LOGGER_NAMES = "getAllLoggerNames";
+    private static final String GET_LOGGER_LEVEL = "getLoggerLevel";
+    
+    private final StompeeUtil stompeeUtil = new StompeeUtil();
+    
     @Override
     public void service(ServletRequest req, ServletResponse res) throws IOException, ServletException {
+        String action = req.getParameter(ACTION);
+        
+        if(GET_ALL_LOGGER_NAMES.equalsIgnoreCase(action)){
+            getAllLoggerNames(req, res);
+        }else if(GET_LOGGER_LEVEL.equalsIgnoreCase(action)){
+            getLoggerLevel(req, res);
+        }
+    }
+
+    private void getLoggerLevel(ServletRequest req, ServletResponse res) throws IOException, ServletException {
+        String name = req.getParameter(NAME);
+        Level level = stompeeUtil.getLevel(name);
+        res.getWriter().print(level.getName());
+        res.getWriter().flush();
+    }
+    
+    private void getAllLoggerNames(ServletRequest req, ServletResponse res) throws IOException, ServletException {
         //res.setContentType("application/json");
         LogManager manager = LogManager.getLogManager();
         Enumeration<String> names = manager.getLoggerNames();
