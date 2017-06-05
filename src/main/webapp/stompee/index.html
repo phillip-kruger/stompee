@@ -26,8 +26,8 @@
     <body>
         
         <!-- Menubar -->
-        <div class="ui fixed borderless menu">
-            <div class="ui container">
+        <div class="ui fixed inverted borderless menu">
+            <!--<div class="ui container">-->
                 <div class="header item"><h2><a href="">Stompee</a></h2></div>
                 <div class="item">
                     <div class="ui search focus">
@@ -46,13 +46,13 @@
                     <a title="About" class="item" onclick="showAboutModal();"><i class="info circle icon"></i></a>
                 </div>
 
-            </div>
+            <!--</div>-->
         </div>
 
         
         
         <!-- The log -->
-        <div class="ui main container">
+        <div class="log">
             <table class="ui basic sortable very compact table">
                 <thead>
                     <tr>
@@ -172,7 +172,7 @@
                             <a class="item active" data-tab="first">Info</a>
                             <a class="item" data-tab="second">License</a>
                         </div>
-                        <div class="ui bottom attached tab segment" data-tab="first" style="width: 100%;">
+                        <div class="ui bottom attached tab segment active" data-tab="first" style="width: 100%;">
                             Stompee use java.util.logging to add a custom Handler that stream log records to a web socket connection.<br/>
                             This allows you to view the log online. You can also change the log level of your logger on the fly. <br/>
                             All log levels are restored when the log viewer are stopped.<br/>
@@ -180,7 +180,9 @@
                             Stompee is written by <a href="http://www.phillip-kruger.com" target="_blank">Phillip Kruger</a><br/>
                             You can follow me on <a href="https://twitter.com/phillipkruger" target="_blank">twitter</a> for updates.<br/>
                             Any comments / suggestions / feedback / feature requests welcomed on the <a class="item" href="https://github.com/phillip-kruger/stompee" target="_blank" title="Code in github">Github</a> page.<br/>
-
+                            <br/>
+                            Stomp is the <a href="https://en.wikipedia.org/wiki/Afrikaans" target="_blank">Afrikaans</a> word for log<br/>
+                            <a href="https://en.wiktionary.org/wiki/stompie" target="_blank">Stompie</a> means cigarette butt.<br/>  
                         </div>
                         <div class="ui bottom attached tab segment" data-tab="second" style="width: 100%;">
                             
