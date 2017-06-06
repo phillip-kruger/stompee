@@ -27,26 +27,32 @@
         
         <!-- Menubar -->
         <div class="ui fixed inverted borderless menu">
-            <!--<div class="ui container">-->
-                <div class="header item"><h2><a href="">Stompee</a></h2></div>
-                <div class="item">
-                    <div class="ui search focus">
-                        <div id="loggerNameDiv" class="ui icon input">
-                            <input class="search" type="text" placeholder="Logger name..." id="loggerName" autocomplete="off">
-                        </div>
+            <div class="header item"><h2><a href="">Stompee</a></h2></div>
+            <div class="item">
+                <div class="ui search focus">
+                    <div id="loggerNameDiv" class="ui icon input">
+                        <input class="search" type="text" placeholder="Logger name..." id="loggerName" autocomplete="off">
                     </div>
                 </div>
+            </div>
+            <div class="item">
+                
+<!--                
+                <div class="ui checkbox inverted">
+                    <input onclick="toggleExceptionsOnly();" id="exceptionsOnly" name="exceptionsOnly" type="checkbox">
+                    <label>Exceptions Only</label>
+                </div>-->
+            </div>
+            
+            <a title="Start tailing log" class="item" onclick="startLog();" id="startIcon"><i class="play icon"></i></a>
+            <a title="Stop tailing log" class="item disabled" onclick="stopLog();" id="stopIcon"><i class="stop icon"></i></a>
+            <a title="Clear screen" class="item" onclick="clearScreen();"><i class="trash outline icon"></i></a>
+            <a title="Log levels" class="item disabled" onclick="showLogLevelModal();" id="settingsIcon"><i class="setting icon"></i></a>
+            <div class="right menu">
+                <div class="header item" id="applicationName"></div>
+                <a title="About" class="item" onclick="showAboutModal();"><i class="info circle icon"></i></a>
+            </div>
 
-                <a title="Start tailing log" class="item" onclick="startLog();" id="startIcon"><i class="play icon"></i></a>
-                <a title="Stop tailing log" class="item disabled" onclick="stopLog();" id="stopIcon"><i class="stop icon"></i></a>
-                <a title="Clear screen" class="item" onclick="clearScreen();"><i class="trash outline icon"></i></a>
-                <a title="Log levels" class="item disabled" onclick="showLogLevelModal();" id="settingsIcon"><i class="setting icon"></i></a>
-                <div class="right menu">
-                    <div class="header item" id="applicationName"></div>
-                    <a title="About" class="item" onclick="showAboutModal();"><i class="info circle icon"></i></a>
-                </div>
-
-            <!--</div>-->
         </div>
 
         
