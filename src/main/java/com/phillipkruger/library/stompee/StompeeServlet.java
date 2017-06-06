@@ -2,6 +2,7 @@ package com.phillipkruger.library.stompee;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import javax.servlet.GenericServlet;
@@ -41,16 +42,16 @@ public class StompeeServlet extends GenericServlet {
     private void getLoggerLevel(ServletRequest req, ServletResponse res) throws IOException, ServletException {
         String name = req.getParameter(NAME);
         Level level = stompeeUtil.getLevel(name);
-        res.getWriter().print(level.getName());
-        res.getWriter().flush();
+        if(level!=null){
+            res.getWriter().print(level.getName());
+            res.getWriter().flush();
+        }
     }
     
     private void getAllLoggerNames(ServletRequest req, ServletResponse res) throws IOException, ServletException {
         //res.setContentType("application/json");
-        LogManager manager = LogManager.getLogManager();
-        Enumeration<String> names = manager.getLoggerNames();
-        while(names.hasMoreElements()){
-            String name = names.nextElement();
+        List<String> loggers = stompeeUtil.getAllLoggerNames();
+        for(String name:loggers){
             res.getWriter().println(name);
         }
         res.getWriter().flush();

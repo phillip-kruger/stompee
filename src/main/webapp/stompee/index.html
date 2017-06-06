@@ -31,7 +31,7 @@
                 <div class="header item"><h2><a href="">Stompee</a></h2></div>
                 <div class="item">
                     <div class="ui search focus">
-                        <div class="ui icon input">
+                        <div id="loggerNameDiv" class="ui icon input">
                             <input class="search" type="text" placeholder="Logger name..." id="loggerName" autocomplete="off">
                         </div>
                     </div>
@@ -81,12 +81,7 @@
                     <div class="grouped fields">
                         <label>Here you can change the log levels for your selected logger.</label>
                         <div class="ui segment">
-                            <div class="field">
-                                <div class="ui slider checkbox">
-                                    <input id="buttonOff" onclick="toggleLogLevel('OFF')" name="level" type="radio">
-                                    <label>Off</label>
-                                </div>
-                            </div>
+                            
                             <div class="field">
                                 <div class="ui slider checkbox">
                                     <input id="buttonSevere" onclick="toggleLogLevel('SEVERE')" name="level" type="radio">
@@ -136,14 +131,6 @@
                                     <div class="ui slider checkbox">
                                         <input id="buttonFinest" onclick="toggleLogLevel('FINEST')" name="level" type="radio">
                                         <label>Finest (most verbose)</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <div class="ui slider checkbox checked">
-                                    <div class="ui slider checkbox">
-                                        <input id="buttonAll" onclick="toggleLogLevel('ALL')" name="level" type="radio">
-                                        <label>All</label>
                                     </div>
                                 </div>
                             </div>

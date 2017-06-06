@@ -169,7 +169,7 @@ var messages = document.getElementById("messages");
         var element = document.getElementById(sequenceNumber);
         var result_style = element.style;
 
-        if(result_style.display == ''){
+        if(result_style.display === ''){
             result_style.display = "none";
         }else{
             result_style.display = '';
@@ -186,35 +186,42 @@ var messages = document.getElementById("messages");
 
     function startLog(){
         var loggerName = $("#loggerName").val();
-        $("#startIcon").addClass("disabled");
-        $("#startIcon").prop("disabled", true);
-        $("#loggerName").addClass("disabled");
-        $("#loggerName").prop("disabled", true);
+        if(loggerName){
+            $("#startIcon").addClass("disabled");
+            $("#startIcon").prop("disabled", true);
+            $("#loggerName").addClass("disabled");
+            $("#loggerName").prop("disabled", true);
 
-        var msg = createJsonMessage("start",loggerName);
-        webSocket.send(msg);
+            var msg = createJsonMessage("start",loggerName);
+            webSocket.send(msg);
 
-        $("#stopIcon").removeClass("disabled");
-        $("#stopIcon").prop("disabled", false);
-        $("#settingsIcon").removeClass("disabled");
-        $("#settingsIcon").prop("disabled", false);
-
+            $("#stopIcon").removeClass("disabled");
+            $("#stopIcon").prop("disabled", false);
+            $("#settingsIcon").removeClass("disabled");
+            $("#settingsIcon").prop("disabled", false);
+            
+            $("#loggerNameDiv").removeClass("error");
+        }else{
+            $("#loggerNameDiv").addClass("error");
+        }
     }
 
     function stopLog(){
         var loggerName = $("#loggerName").val();
-        $("#stopIcon").addClass("disabled");
-        $("#stopIcon").prop("disabled", true);
-        $("#settingsIcon").addClass("disabled");
-        $("#settingsIcon").prop("disabled", true);
+        if(loggerName){
+            $("#stopIcon").addClass("disabled");
+            $("#stopIcon").prop("disabled", true);
+            $("#settingsIcon").addClass("disabled");
+            $("#settingsIcon").prop("disabled", true);
 
-        var msg = createJsonMessage("stop",loggerName);
-        webSocket.send(msg);
+            var msg = createJsonMessage("stop",loggerName);
+            webSocket.send(msg);
 
-        $("#startIcon").removeClass("disabled");
-        $("#startIcon").prop("disabled", false);
-        $("#loggerName").removeClass("disabled");
-        $("#loggerName").prop("disabled", false);
+            $("#startIcon").removeClass("disabled");
+            $("#startIcon").prop("disabled", false);
+            $("#loggerName").removeClass("disabled");
+            $("#loggerName").prop("disabled", false);
+        }
     }
 
     function createJsonMessage(doAction,loggerName){
@@ -234,14 +241,16 @@ var messages = document.getElementById("messages");
     function showLogLevelModal(){
         // Here get the current settings
         var loggerName = $("#loggerName").val();
-        var url = contextRoot + "/servlet/stompee?action=getLoggerLevel&name=" + loggerName;
-        var level = httpGet(url);
-    
-        messageLogLevel(level);
-        
-        $('#modalLogLevel')
-            .modal('show')
-        ;
+        if(loggerName){
+            var url = contextRoot + "/servlet/stompee?action=getLoggerLevel&name=" + loggerName;
+            var level = httpGet(url);
+
+            messageLogLevel(level);
+
+            $('#modalLogLevel')
+                .modal('show')
+            ;
+        }
     }
 
     function showAboutModal(){
@@ -251,7 +260,6 @@ var messages = document.getElementById("messages");
     }
 
     function messageLogLevel(level){
-        if(level === "ALL")$("#buttonAll").prop("checked", "checked");
         if(level === "INFO")$("#buttonInfo").prop("checked", "checked");
         if(level === "FINE")$("#buttonFine").prop("checked", "checked");
         if(level === "FINER")$("#buttonFiner").prop("checked", "checked");
@@ -259,7 +267,6 @@ var messages = document.getElementById("messages");
         if(level === "WARNING")$("#buttonWarning").prop("checked", "checked");
         if(level === "SEVERE")$("#buttonSevere").prop("checked", "checked");
         if(level === "CONFIG")$("#buttonConfig").prop("checked", "checked");
-        if(level === "OFF")$("#buttonOff").prop("checked", "checked");
     }
 
 

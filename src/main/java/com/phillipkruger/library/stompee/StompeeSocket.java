@@ -46,23 +46,26 @@ public class StompeeSocket {
     }
     
     @OnMessage
-    public void onMessage(String message, Session session){
+    public void onMessage(String message, Session session) {
+        if(message!=null && !message.isEmpty()){
+            JsonObject jo = toJsonObject(message);
         
-        JsonObject jo = toJsonObject(message);
-        
-        String action = jo.getString(ACTION);
-        String loggerName = jo.getString(LOGGER);
-        
-        if(START.equalsIgnoreCase(action)){
-            start(session,loggerName);
-        } else if(STOP.equalsIgnoreCase(action)){
-            stop(session);
-        } else if(SET_LOG_LEVEL.equalsIgnoreCase(action)){
-            setLogLevel(session,loggerName); // TODO: Change name to param ?
+            String action = jo.getString(ACTION);
+            
+            if(START.equalsIgnoreCase(action)){
+                String loggerName = jo.getString(LOGGER);
+                if(stompeeUtil.validLogger(loggerName))start(session,loggerName);
+            } else if(STOP.equalsIgnoreCase(action)){
+                stop(session);
+            } else if(SET_LOG_LEVEL.equalsIgnoreCase(action)){
+                String levelName = jo.getString(LOGGER); // TODO: Change name to param ?
+                // TODO: Validate level
+                setLogLevel(session,levelName); 
+            }
         }
     }
     
-    private void start(Session session,String logger){
+    private void start(Session session,String logger) {
         String uuid = getUuid(session);
         if(uuid == null){
             uuid = UUID.randomUUID().toString();
@@ -71,7 +74,7 @@ public class StompeeSocket {
         }
     }
     
-    private void stop(Session session){
+    private void stop(Session session) {
         String name = getUuid(session);
         if(name != null){
             unregisterHandler(session);
@@ -120,12 +123,14 @@ public class StompeeSocket {
         Handler handler = new StompeeHandler(session,loggerName);
         
         Logger logger = stompeeUtil.getLogger(loggerName);
-        logger.addHandler(handler);
+        if(logger!=null){
+            logger.addHandler(handler);
         
-        session.getUserProperties().put(HANDLER, handler);
-        session.getUserProperties().put(ID, uuid);
-        session.getUserProperties().put(LOGGER_NAME, loggerName);
-        session.getUserProperties().put(LOG_LEVEL, logger.getLevel().getName());
+            session.getUserProperties().put(HANDLER, handler);
+            session.getUserProperties().put(ID, uuid);
+            session.getUserProperties().put(LOGGER_NAME, loggerName);
+            session.getUserProperties().put(LOG_LEVEL, logger.getLevel().getName());
+        }
     }
     
     private void unregisterHandler(Session session){
@@ -133,7 +138,7 @@ public class StompeeSocket {
         String loggerName = (String)session.getUserProperties().get(LOGGER_NAME);
         if(handler!=null){
             Logger logger = stompeeUtil.getLogger(loggerName);
-            logger.removeHandler(handler); 
+            if(logger!=null)logger.removeHandler(handler); 
         }
         // Restore original level
         String originalLevel = (String)session.getUserProperties().remove(LOG_LEVEL);
