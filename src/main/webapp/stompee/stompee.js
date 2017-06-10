@@ -267,7 +267,7 @@ var messages = document.getElementById("messages");
         messages.innerHTML = "";
     }
 
-    function showLogLevelModal(){
+    function showSettingsModal(){
         // Here get the current settings
         var loggerName = $("#loggerName").val();
         if(loggerName){
@@ -276,14 +276,34 @@ var messages = document.getElementById("messages");
 
             messageLogLevel(level);
 
-            $('#modalLogLevel')
+            $('#modalSettings')
+                .modal({
+                    onHide: function(){
+                        filterMessages();
+                    }
+                })    
+                .modal('setting', 'transition', 'vertical flip')
                 .modal('show')
             ;
         }
     }
 
+    function filterMessages(){
+        var filter = $("#txtFilterMessages").val();
+        
+        var map = new Map();
+        if(filter){
+            putMap(map,"filter",filter);
+        }else{
+            putMap(map,"filter","");
+        }
+        var msg = createJsonMessage("setFilter",map);
+        webSocket.send(msg);
+    }
+
     function showAboutModal(){
         $('#modalAbout')
+            .modal('setting', 'transition', 'vertical flip')
             .modal('show')
         ;
     }

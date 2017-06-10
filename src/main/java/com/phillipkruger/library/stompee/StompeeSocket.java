@@ -62,8 +62,11 @@ public class StompeeSocket {
                 // TODO: Validate level
                 setLogLevel(session,levelName); 
             } else if(SET_EXCEPTIONS_ONLY.equalsIgnoreCase(action)){
-                Boolean exceptionsOnly = jo.getBoolean(EXCEPTIONS_ONLY);
+                Boolean exceptionsOnly = jo.getBoolean(Settings.EXCEPTIONS_ONLY);
                 setExceptionsOnly(session,exceptionsOnly);
+            } else if(SET_FILTER.equalsIgnoreCase(action)){
+                String filter = jo.getString(Settings.FILTER);
+                setFilter(session, filter);
             }
         }
     }
@@ -94,7 +97,7 @@ public class StompeeSocket {
 
         LogManager logManager = LogManager.getLogManager();
         Enumeration<String> loggerNames = logManager.getLoggerNames();
-        String prefix = loggerName + ".";
+        String prefix = loggerName + DOT;
         while (loggerNames.hasMoreElements()) {
             String aLoggerName = loggerNames.nextElement();
             if (aLoggerName.startsWith(prefix)) {
@@ -104,7 +107,15 @@ public class StompeeSocket {
     }
     
     private void setExceptionsOnly(Session session,Boolean exceptionsOnly){
-        session.getUserProperties().put(EXCEPTIONS_ONLY, exceptionsOnly);
+        session.getUserProperties().put(Settings.EXCEPTIONS_ONLY, exceptionsOnly);
+    }
+    
+    private void setFilter(Session session,String filter){
+        if(filter!=null && !filter.isEmpty()){
+            session.getUserProperties().put(Settings.FILTER, filter);
+        }else{
+            session.getUserProperties().remove(Settings.FILTER);
+        }
     }
     
     private void startupMessage(String message,Session session){
@@ -138,7 +149,6 @@ public class StompeeSocket {
             session.getUserProperties().put(ID, uuid);
             session.getUserProperties().put(LOGGER_NAME, loggerName);
             session.getUserProperties().put(LOG_LEVEL, logger.getLevel().getName());
-            session.getUserProperties().put(EXCEPTIONS_ONLY,false);
         }
     }
     
@@ -156,7 +166,8 @@ public class StompeeSocket {
         session.getUserProperties().remove(ID);
         session.getUserProperties().remove(HANDLER);
         session.getUserProperties().remove(LOGGER_NAME);
-        session.getUserProperties().remove(EXCEPTIONS_ONLY);
+        session.getUserProperties().remove(Settings.EXCEPTIONS_ONLY);
+        session.getUserProperties().remove(Settings.FILTER);
     }
     
     private Handler getHandler(Session session){
@@ -188,10 +199,12 @@ public class StompeeSocket {
     private static final String STOP = "stop";
     private static final String SET_LOG_LEVEL = "setLogLevel";
     private static final String SET_EXCEPTIONS_ONLY = "setExceptionsOnly";
+    private static final String SET_FILTER = "setFilter";
     private static final String LOGGER_NAME = "loggerName";
     private static final String LOG_LEVEL = "logLevel";
-    private static final String EXCEPTIONS_ONLY = "exceptionsOnly";
     private static final String ACTION = "action";
     private static final String LOGGER = "logger";
+    
+    private static final String DOT = ".";
     private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();
 }

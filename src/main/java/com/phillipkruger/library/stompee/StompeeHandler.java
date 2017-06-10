@@ -22,7 +22,7 @@ public class StompeeHandler extends Handler {
     
     @Override
     public void publish(LogRecord logRecord) {
-        if(session!=null && shouldLog(logRecord)){ 
+        if(session!=null && shouldLog(logRecord) && filter(logRecord)){ 
             String message = getFormatter().format(logRecord);
             try {
                 session.getBasicRemote().sendText(message);   
@@ -33,11 +33,21 @@ public class StompeeHandler extends Handler {
     }
 
     private boolean shouldLog(LogRecord logRecord){
-        Object exceptionsOnlyProperty = session.getUserProperties().get(EXCEPTIONS_ONLY);
+        Object exceptionsOnlyProperty = session.getUserProperties().get(Settings.EXCEPTIONS_ONLY);
         if(exceptionsOnlyProperty!=null){
             boolean exceptionsOnly = (Boolean)exceptionsOnlyProperty;
             if(exceptionsOnly && logRecord.getThrown()!=null)return true;
             return !exceptionsOnly;
+        }
+        return true;
+    }
+    
+    private boolean filter(LogRecord logRecord){
+        Object filterProperty = session.getUserProperties().get(Settings.FILTER);
+        if(filterProperty!=null){
+            String filter = (String)filterProperty;
+            if(!filter.isEmpty() && logRecord.getMessage().contains(filter))return true;
+            return false;
         }
         return true;
     }
@@ -47,7 +57,5 @@ public class StompeeHandler extends Handler {
 
     @Override
     public void close() throws SecurityException {}
-
-    private static final String EXCEPTIONS_ONLY = "exceptionsOnly";
    
 }

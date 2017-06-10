@@ -1,0 +1,97 @@
+<div id="modalSettings" class="ui modal">
+    <i class="close icon"></i>
+    <div class="header">
+        Settings
+    </div>
+    <div class="content">
+        <div class="ui grid">
+            <div class="eight wide column">
+                <div class="ui form">
+                    <div class="grouped fields">
+                        <label>Log levels</label>
+                        <div class="ui segment">
+
+                            <div class="field">
+                                <div class="ui slider checkbox">
+                                    <input id="buttonSevere" onclick="toggleLogLevel('SEVERE')" name="level" type="radio">
+                                    <label>Severe (least verbose)</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox">
+                                    <input id="buttonWarning" onclick="toggleLogLevel('WARNING')" name="level" type="radio">
+                                    <label>Warning</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox checked">
+                                    <div class="ui slider checkbox">
+                                        <input id="buttonInfo" onclick="toggleLogLevel('INFO')" name="level" type="radio">
+                                        <label>Info</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox checked">
+                                    <div class="ui slider checkbox">
+                                        <input id="buttonConfig" onclick="toggleLogLevel('CONFIG')" name="level" type="radio">
+                                        <label>Config</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox checked">
+                                    <div class="ui slider checkbox">
+                                        <input id="buttonFine" onclick="toggleLogLevel('FINE')" name="level" type="radio">
+                                        <label>Fine</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox checked">
+                                    <div class="ui slider checkbox">
+                                        <input id="buttonFiner" onclick="toggleLogLevel('FINER')" name="level" type="radio">
+                                        <label>Finer</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="ui slider checkbox checked">
+                                    <div class="ui slider checkbox">
+                                        <input id="buttonFinest" onclick="toggleLogLevel('FINEST')" name="level" type="radio">
+                                        <label>Finest (most verbose)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>        
+            </div>
+            <div class="eight wide column">
+                <div class="ui form">
+                    <div class="grouped fields">
+                        <label>Other filters.</label>
+                        <div class="ui segment">
+
+                            <div class="field">
+                                <div class="ui slider checkbox">
+                                    <input id="buttonExceptionsOnly" onclick="toggleExceptionsOnly()" name="buttonExceptionsOnly" type="checkbox">
+                                    <label>Exceptions only</label>
+                                </div>                                        
+                            </div>
+                            <div class="field">
+                                <div class="ui left icon input">
+                                    <input id="txtFilterMessages" placeholder="Filter messages" type="text">
+                                    <i class="filter icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
