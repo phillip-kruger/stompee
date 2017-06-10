@@ -22,20 +22,32 @@ public class StompeeHandler extends Handler {
     
     @Override
     public void publish(LogRecord logRecord) {
-        if(session!=null){
+        if(session!=null && shouldLog(logRecord)){ 
             String message = getFormatter().format(logRecord);
             try {
                 session.getBasicRemote().sendText(message);   
-            }catch (IllegalStateException | IOException ex) {
-                log.severe(ex.getMessage());
+            }catch (Throwable ex) {
+                try {session.close();} catch (IOException ex1) {}
             }
         }
     }
 
+    private boolean shouldLog(LogRecord logRecord){
+        Object exceptionsOnlyProperty = session.getUserProperties().get(EXCEPTIONS_ONLY);
+        if(exceptionsOnlyProperty!=null){
+            boolean exceptionsOnly = (Boolean)exceptionsOnlyProperty;
+            if(exceptionsOnly && logRecord.getThrown()!=null)return true;
+            return !exceptionsOnly;
+        }
+        return true;
+    }
+    
     @Override
     public void flush() {}
 
     @Override
     public void close() throws SecurityException {}
+
+    private static final String EXCEPTIONS_ONLY = "exceptionsOnly";
    
 }

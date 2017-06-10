@@ -10,6 +10,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.logging.MemoryHandler;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -49,18 +50,20 @@ public class StompeeSocket {
     public void onMessage(String message, Session session) {
         if(message!=null && !message.isEmpty()){
             JsonObject jo = toJsonObject(message);
-        
-            String action = jo.getString(ACTION);
             
+            String action = jo.getString(ACTION);
             if(START.equalsIgnoreCase(action)){
                 String loggerName = jo.getString(LOGGER);
                 if(stompeeUtil.validLogger(loggerName))start(session,loggerName);
             } else if(STOP.equalsIgnoreCase(action)){
                 stop(session);
             } else if(SET_LOG_LEVEL.equalsIgnoreCase(action)){
-                String levelName = jo.getString(LOGGER); // TODO: Change name to param ?
+                String levelName = jo.getString(LOG_LEVEL);
                 // TODO: Validate level
                 setLogLevel(session,levelName); 
+            } else if(SET_EXCEPTIONS_ONLY.equalsIgnoreCase(action)){
+                Boolean exceptionsOnly = jo.getBoolean(EXCEPTIONS_ONLY);
+                setExceptionsOnly(session,exceptionsOnly);
             }
         }
     }
@@ -100,6 +103,10 @@ public class StompeeSocket {
         }
     }
     
+    private void setExceptionsOnly(Session session,Boolean exceptionsOnly){
+        session.getUserProperties().put(EXCEPTIONS_ONLY, exceptionsOnly);
+    }
+    
     private void startupMessage(String message,Session session){
         String startupMessage = new StartupMessage(message).toString();
         try {
@@ -120,16 +127,18 @@ public class StompeeSocket {
     }
           
     private void registerHandler(Session session,String uuid,String loggerName){
-        Handler handler = new StompeeHandler(session,loggerName);
+        
+        Handler handler = new MemoryHandler(new StompeeHandler(session,loggerName),1000,Level.FINEST);
         
         Logger logger = stompeeUtil.getLogger(loggerName);
         if(logger!=null){
             logger.addHandler(handler);
-        
+            
             session.getUserProperties().put(HANDLER, handler);
             session.getUserProperties().put(ID, uuid);
             session.getUserProperties().put(LOGGER_NAME, loggerName);
             session.getUserProperties().put(LOG_LEVEL, logger.getLevel().getName());
+            session.getUserProperties().put(EXCEPTIONS_ONLY,false);
         }
     }
     
@@ -147,7 +156,7 @@ public class StompeeSocket {
         session.getUserProperties().remove(ID);
         session.getUserProperties().remove(HANDLER);
         session.getUserProperties().remove(LOGGER_NAME);
-        
+        session.getUserProperties().remove(EXCEPTIONS_ONLY);
     }
     
     private Handler getHandler(Session session){
@@ -178,9 +187,10 @@ public class StompeeSocket {
     private static final String START = "start";
     private static final String STOP = "stop";
     private static final String SET_LOG_LEVEL = "setLogLevel";
-    
+    private static final String SET_EXCEPTIONS_ONLY = "setExceptionsOnly";
     private static final String LOGGER_NAME = "loggerName";
     private static final String LOG_LEVEL = "logLevel";
+    private static final String EXCEPTIONS_ONLY = "exceptionsOnly";
     private static final String ACTION = "action";
     private static final String LOGGER = "logger";
     private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();

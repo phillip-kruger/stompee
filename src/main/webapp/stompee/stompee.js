@@ -121,7 +121,17 @@ var messages = document.getElementById("messages");
     }
 
     function toggleLogLevel(level){
-        var msg = createJsonMessage("setLogLevel",level);
+        var map = new Map();
+        putMap(map,"logLevel",level);
+        var msg = createJsonMessage("setLogLevel",map);
+        webSocket.send(msg);
+    }
+
+
+    function toggleExceptionsOnly(){
+        var map = new Map();
+        putMap(map,"exceptionsOnly",$('#buttonExceptionsOnly').is(":checked"));
+        var msg = createJsonMessage("setExceptionsOnly",map);
         webSocket.send(msg);
     }
 
@@ -191,8 +201,12 @@ var messages = document.getElementById("messages");
             $("#startIcon").prop("disabled", true);
             $("#loggerName").addClass("disabled");
             $("#loggerName").prop("disabled", true);
-
-            var msg = createJsonMessage("start",loggerName);
+            
+            var exceptionsOnly = $("#exceptionOnly").val();
+            var map = new Map();
+            putMap(map,"logger",loggerName);
+            putMap(map,"exceptionsOnly",exceptionsOnly);
+            var msg = createJsonMessage("start",map);
             webSocket.send(msg);
 
             $("#stopIcon").removeClass("disabled");
@@ -214,7 +228,9 @@ var messages = document.getElementById("messages");
             $("#settingsIcon").addClass("disabled");
             $("#settingsIcon").prop("disabled", true);
 
-            var msg = createJsonMessage("stop",loggerName);
+            var map = new Map();
+            putMap(map,"logger",loggerName);
+            var msg = createJsonMessage("stop",map);
             webSocket.send(msg);
 
             $("#startIcon").removeClass("disabled");
@@ -224,14 +240,27 @@ var messages = document.getElementById("messages");
         }
     }
 
-    function createJsonMessage(doAction,loggerName){
-        var msg = {
-            action: doAction,
-            logger: loggerName
-        };
+    function putMap(map, key, value) {
+        map.set(key, value);
+    }
 
-        return JSON.stringify(msg);
+    function map_to_object(map) {
+        const out = Object.create(null)
+        map.forEach((value, key) => {
+          if (value instanceof Map) {
+            out[key] = map_to_object(value)
+          }
+          else {
+            out[key] = value
+          }
+        })
+        return out
+    }
 
+    function createJsonMessage(doAction,params){
+        putMap(params,"action",doAction);
+        var o = map_to_object(params);
+        return JSON.stringify(o);  
     }
 
     function clearScreen(){
