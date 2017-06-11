@@ -5,11 +5,16 @@
     <groupId>com.phillipkruger.library</groupId>
     <artifactId>stompee</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <name>stompee</name>
     <url>https://github.com/phillip-kruger/stompee</url>
     <description>A library to view the log in Java EE systems</description>
+    
+    <modules>
+        <module>stompee-core</module>
+        <module>stompee-example</module>
+    </modules>
     
     <scm>
         <connection>scm:git:https://github.com/phillip-kruger/stompee.git</connection>
@@ -39,11 +44,9 @@
         
         <!-- JEE Platform -->        
         <jee.version>7.0</jee.version>
-        
         <lombok.version>1.16.16</lombok.version>
-        
-        <semantic-ui.version>2.2.10</semantic-ui.version>
-        <jquery.version>3.2.1</jquery.version>
+       
+        <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
     
     <dependencies>
@@ -61,48 +64,7 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Webjars: see http://www.webjars.org/documentation -->
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>semantic-ui</artifactId>
-            <version>${semantic-ui.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>jquery</artifactId>
-            <version>${jquery.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        
     </dependencies>
     
-    <build>
-                
-        <!-- Copy all web content files META-INF folder, and push it though a filter to replace maven properties -->
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/webapp</directory>
-                <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.css</include>
-                    <include>**/*.html</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/webapp</directory>
-                <targetPath>${project.build.directory}/classes/META-INF/resources</targetPath>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/*.css</exclude>
-                    <exclude>**/*.html</exclude>
-                </excludes>
-            </resource>
-        </resources>
-    </build>
     
 </project>
