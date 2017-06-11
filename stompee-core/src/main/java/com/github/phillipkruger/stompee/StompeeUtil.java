@@ -13,7 +13,7 @@ import lombok.extern.java.Log;
 
 /**
  * Some util to help with logger.
- * @author Phillip Kruger (phillip.kruger@momentum.co.za)
+ * @author Phillip Kruger (phillip.kruger@gmail.com)
  */
 @Log
 public class StompeeUtil {

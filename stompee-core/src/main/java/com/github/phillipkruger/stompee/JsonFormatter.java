@@ -66,9 +66,9 @@ public class JsonFormatter extends Formatter {
         addStacktrace(traces, t);
         
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        traces.forEach((trace) -> {
+        for(String trace:traces){
             arrayBuilder.add(trace);
-        });
+        }
         return arrayBuilder.build();
     }
     
