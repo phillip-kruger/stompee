@@ -14,7 +14,6 @@
     <modules>
         <module>stompee-core</module>
         <module>stompee-standalone</module>
-        <module>stompee-example</module>
     </modules>
     
     <licenses>
