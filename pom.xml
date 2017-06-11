@@ -4,7 +4,7 @@
     
     <groupId>com.github.phillip-kruger</groupId>
     <artifactId>stompee</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
     
     <name>stompee</name>
@@ -13,6 +13,7 @@
     
     <modules>
         <module>stompee-core</module>
+        <module>stompee-standalone</module>
         <module>stompee-example</module>
     </modules>
     
