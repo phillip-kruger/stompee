@@ -96,10 +96,10 @@ var messages = document.getElementById("messages");
             var sequenceNumber = json.sequenceNumber;
 
             writeResponse("<tr class='" + level + "'>\n\
-                            <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
-                            <td>\n\
-                                <a class='ui tiny " + getLogLevelColor(json.level) + " circular label popup-button-threadid' onclick='filterByThreadId(" + tid + ");'>" + tid + "</a>\n\
+                            <td data-tooltip='" + json.level + "' data-position='top left'>\n\
+                                <a class='ui " + getLogLevelColor(json.level) + " empty circular label'></a> " + sequenceNumber + "\n\
                             </td>\n\
+                            <td onclick='filterByThreadId(" + tid + ");'>" + tid + "</td>\n\
                             <td data-tooltip='" + datestring + "' data-position='top left'>" + timestring + "</td>\n\
                             <td data-tooltip='" + sourceClassNameFull + "' data-position='top left'>" + sourceClassName + "</td>\n\
                             <td>" + sourceMethodName + "</td>\n\
