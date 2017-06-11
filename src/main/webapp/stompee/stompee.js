@@ -81,6 +81,8 @@ var messages = document.getElementById("messages");
             writeResponse("Connection closed");
         };
 
+
+
         function messageLog(json){
             var timestamp = new Date(json.timestamp);
             var timestring = timestamp.toLocaleTimeString();
@@ -95,7 +97,9 @@ var messages = document.getElementById("messages");
 
             writeResponse("<tr class='" + level + "'>\n\
                             <td data-tooltip='" + json.level + "' data-position='top left'>" + sequenceNumber + "</td>\n\
-                            <td>" + tid + "</td>\n\
+                            <td>\n\
+                                <a class='ui tiny " + getLogLevelColor(json.level) + " circular label popup-button-threadid' onclick='filterByThreadId(" + tid + ");'>" + tid + "</a>\n\
+                            </td>\n\
                             <td data-tooltip='" + datestring + "' data-position='top left'>" + timestring + "</td>\n\
                             <td data-tooltip='" + sourceClassNameFull + "' data-position='top left'>" + sourceClassName + "</td>\n\
                             <td>" + sourceMethodName + "</td>\n\
@@ -143,6 +147,17 @@ var messages = document.getElementById("messages");
         if(level === "FINE") return "blue";
         if(level === "FINER") return "blue"; // TODO: Find better colors
         if(level === "FINEST") return "blue"; // TODO: Find better colors
+        return level;
+    }
+
+    function getLogLevelColor(level){
+
+        if(level === "WARNING") return "orange";
+        if(level === "SEVERE") return "red";
+        if(level === "INFO") return "green";
+        if(level === "FINE") return "teal";
+        if(level === "FINER") return "blue";
+        if(level === "FINEST") return "violet";
         return level;
     }
 
@@ -308,6 +323,10 @@ var messages = document.getElementById("messages");
         ;
     }
 
+    function filterByThreadId(threadId){
+        //console.log("TODO: Filter by id " + threadId);
+    }
+
     function messageLogLevel(level){
         if(level === "INFO")$("#buttonInfo").prop("checked", "checked");
         if(level === "FINE")$("#buttonFine").prop("checked", "checked");
@@ -338,4 +357,3 @@ var messages = document.getElementById("messages");
     window.onbeforeunload = function() {
         closeSocket();
     };
-
