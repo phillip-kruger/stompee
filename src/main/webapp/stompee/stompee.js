@@ -10,6 +10,20 @@ var messages = document.getElementById("messages");
     $('document').ready(function(){
         openSocket();
         $('table').tablesort();
+        
+        
+        // Get all logger names 
+        var url = contextRoot + "/servlet/stompee?action=getAllLoggerNames";
+        var loggerNames = httpGet(url);
+        var loggerNamesArray = loggerNames.split(/\r?\n/);
+        
+        var loggerNameMenu = $('#loggerNameMenu');
+        for (var i in loggerNamesArray) {
+            var $div = $("<div>", {"class": "item"});
+            $div.append(loggerNamesArray[i]);
+            loggerNameMenu.append($div);
+        }
+        
     });
 
 
@@ -210,12 +224,13 @@ var messages = document.getElementById("messages");
     }
 
     function startLog(){
-        var loggerName = $("#loggerName").val();
+        var loggerName = $('#loggerDropdown').dropdown('get text');
+        
         if(loggerName){
             $("#startIcon").addClass("disabled");
             $("#startIcon").prop("disabled", true);
-            $("#loggerName").addClass("disabled");
-            $("#loggerName").prop("disabled", true);
+            $("#loggerDropdown").addClass("disabled");
+            $("#loggerDropdown").prop("disabled", true);
             
             var exceptionsOnly = $("#exceptionOnly").val();
             var map = new Map();
@@ -236,7 +251,8 @@ var messages = document.getElementById("messages");
     }
 
     function stopLog(){
-        var loggerName = $("#loggerName").val();
+        var loggerName = $('#loggerDropdown').dropdown('get text');
+        
         if(loggerName){
             $("#stopIcon").addClass("disabled");
             $("#stopIcon").prop("disabled", true);
@@ -250,8 +266,8 @@ var messages = document.getElementById("messages");
 
             $("#startIcon").removeClass("disabled");
             $("#startIcon").prop("disabled", false);
-            $("#loggerName").removeClass("disabled");
-            $("#loggerName").prop("disabled", false);
+            $("#loggerDropdown").removeClass("disabled");
+            $("#loggerDropdown").prop("disabled", false);
         }
     }
 
@@ -284,7 +300,7 @@ var messages = document.getElementById("messages");
 
     function showSettingsModal(){
         // Here get the current settings
-        var loggerName = $("#loggerName").val();
+        var loggerName = $('#loggerDropdown').dropdown('get text');
         if(loggerName){
             var url = contextRoot + "/servlet/stompee?action=getLoggerLevel&name=" + loggerName;
             var level = httpGet(url);
@@ -345,15 +361,16 @@ var messages = document.getElementById("messages");
         return xmlHttp.responseText;
     }
 
-    $("#loggerName").on('keyup', function (e) {
+    $("#loggerDropdown").on('keyup', function (e) {
         if (e.keyCode == 13) {
             startLog();
         }
     });
 
-    $('.menu .item')
-        .tab()
-    ;
     window.onbeforeunload = function() {
         closeSocket();
     };
+    
+    $('#loggerDropdown')
+        .dropdown()
+    ;
