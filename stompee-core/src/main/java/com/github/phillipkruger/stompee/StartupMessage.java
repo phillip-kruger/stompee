@@ -1,6 +1,5 @@
-package com.phillipkruger.library.stompee;
+package com.github.phillipkruger.stompee;
 
-import java.util.logging.Level;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import lombok.AllArgsConstructor;
@@ -9,27 +8,27 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * To create a initial log level message
+ * To create a startup message, to send system state
  * @author Phillip Kruger (phillip.kruger@gmail.com)
  */
 @AllArgsConstructor @NoArgsConstructor
-public class LogLevelMessage extends SystemMessage {
+public class StartupMessage extends SystemMessage {
     
     @Getter @Setter
-    private Level level;
+    private String applicationName;
 
     @Override
     protected JsonObject toJsonObject(){
         JsonObjectBuilder builder = getJsonObjectBuilder();
-        builder.add(LOG_LEVEL, level.getName());
+        if(applicationName!=null)builder.add(APPLICATION_NAME, applicationName);
         return builder.build();
     }
     
     @Override
     protected String getMessageType() {
-        return INIT_LOG_LEVEL_MESSAGE;
+        return STARTUP_MESSAGE;
     }
     
-    private static final String INIT_LOG_LEVEL_MESSAGE = "logLevelMessage";
-    private static final String LOG_LEVEL = "logLevel";
+    private static final String STARTUP_MESSAGE = "startupMessage";
+    private static final String APPLICATION_NAME = "applicationName";
 }

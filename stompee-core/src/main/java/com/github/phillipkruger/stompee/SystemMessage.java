@@ -1,4 +1,4 @@
-package com.phillipkruger.library.stompee;
+package com.github.phillipkruger.stompee;
 
 import javax.json.Json;
 import javax.json.JsonObject;

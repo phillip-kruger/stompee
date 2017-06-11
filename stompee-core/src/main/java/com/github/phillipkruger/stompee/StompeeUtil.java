@@ -1,4 +1,4 @@
-package com.phillipkruger.library.stompee;
+package com.github.phillipkruger.stompee;
 
 import java.util.ArrayList;
 import java.util.Arrays;
