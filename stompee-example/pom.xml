@@ -48,7 +48,7 @@
                             <execution>
                                 <phase>install</phase>
                                 <goals>
-                                    <goal>tomee:deploy</goal>
+                                    <goal>deploy</goal>
                                 </goals>
                             </execution>
                         </executions>
