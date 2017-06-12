@@ -3,11 +3,11 @@ package com.github.phillipkruger.stompee;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
-import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
 import lombok.extern.java.Log;
  
 /** 
@@ -16,8 +16,8 @@ import lombok.extern.java.Log;
  */
 @Log
 @WebServlet(value="/servlet/stompee", name="StompeeServlet") 
-public class StompeeServlet extends GenericServlet {
-
+public class StompeeServlet extends HttpServlet {
+    
     private static final String ACTION = "action";
     
     private static final String NAME = "name";

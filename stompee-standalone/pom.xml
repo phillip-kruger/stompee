@@ -80,6 +80,54 @@
                         
             </build>
         </profile>
+        
+        <!-- Activate using the payara property: mvn clean install -Dpayara -->
+        <profile>
+            <id>payara</id>
+            <activation>
+                <property>
+                    <name>payara</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <configuration>
+                            <outputDirectory>/opt/payara41/glassfish/domains/domain1/autodeploy/</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                        
+            </build>
+        </profile>
+        
+        <!-- Activate using the liberty property: mvn clean install -Dliberty -->
+        <profile>
+            <id>liberty</id>
+            <activation>
+                <property>
+                    <name>liberty</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <configuration>
+                            <outputDirectory>/opt/wlp/usr/servers/defaultServer/dropins/</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                        
+            </build>
+        </profile>
     </profiles>
     
 </project>
