@@ -21,8 +21,8 @@ public class ExampleService {
         log.info("Example service started up !");
     }
     
-    @Schedule(persistent=false, second = "*/1",minute="*",hour="*")
-    public void everySecond() {
+    @Schedule(persistent=false, second = "*/10",minute="*",hour="*")
+    public void createSomeLogging() {
         log.log(Level.SEVERE, "Here some random severe {0}", UUID.randomUUID());
         log.log(Level.INFO, "Here some random info {0}", UUID.randomUUID());
         log.log(Level.WARNING, "Here some random warning {0}", UUID.randomUUID());

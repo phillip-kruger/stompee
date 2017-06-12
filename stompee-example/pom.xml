@@ -48,7 +48,7 @@
                             <execution>
                                 <phase>install</phase>
                                 <goals>
-                                    <goal>deploy</goal>
+                                    <goal>tomee:deploy</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -57,6 +57,29 @@
             </build>
         </profile>    
         
+        <!-- Activate using the tomee property: mvn clean install -Dtomee -->
+        <profile>
+            <id>tomee</id>
+            <activation>
+                <property>
+                    <name>tomee</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <configuration>
+                            <outputDirectory>/opt/apache-tomee-plus-7.0.3/webapps/</outputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                        
+            </build>
+        </profile>
     </profiles>
     
     
