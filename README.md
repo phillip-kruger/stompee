@@ -10,7 +10,7 @@
 Stompee allows you to view the log file online. All you need to do is include the stompee jar in your war file. 
 Stompee is not meant to replace your log file, but rather assist you to easily look at certain parts of the log file online. Stompee can not handle the load of a very busy log file, so make sure to select the correct logger and level.
  
-The stompee-core library is published to [maven central](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22stompee-core%22)
+The stompee-core library is published to [maven central](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22stompee-core%22) and artefacts is available in [Nexus OSS](https://oss.sonatype.org/#nexus-search;quick~stompee-core)
 
 In your pom.xml:
  
