@@ -9,23 +9,31 @@ var messages = document.getElementById("messages");
 
     $('document').ready(function(){
         openSocket();
-        $('table').tablesort();
-        
         
         // Get all logger names 
         var url = contextRoot + "/servlet/stompee?action=getAllLoggerNames";
         var loggerNames = httpGet(url);
-        var loggerNamesArray = loggerNames.split(/\r?\n/);
-        
+        var loggerNamesArray = JSON.parse(loggerNames);
         var loggerNameMenu = $('#loggerNameMenu');
-        for (var i in loggerNamesArray) {
+        // Populate the dropdown
+        for(var i = 0; i < loggerNamesArray.length; i++) {
             var $div = $("<div>", {"class": "item"});
             $div.append(loggerNamesArray[i]);
             loggerNameMenu.append($div);
         }
+        $('#loggerDropdown').dropdown();
+        $("#loggerDropdown").on('keyup', function (e) {
+            if (e.keyCode == 13) {
+                startLog();
+            }
+        });
         
+        $('table').tablesort();
+        // Make sure we stop the connection when the browser close
+        window.onbeforeunload = function() {
+            closeSocket();
+        };
     });
-
 
     function getContextRoot() {
         var base = document.getElementsByTagName('base')[0];
@@ -40,8 +48,6 @@ var messages = document.getElementById("messages");
         var contextRoot = u.substr(u.indexOf("/"));
         return contextRoot;
     }
-
-
 
     function openSocket(){
         // Ensures only one connection is open at a time
@@ -138,13 +144,65 @@ var messages = document.getElementById("messages");
         }
     }
 
+    function closeSocket(){
+        webSocket.close();
+    }
+
+    function startLog(){
+        var loggerName = $('#loggerDropdown').dropdown('get text');
+        
+        if(loggerName){
+            $("#startIcon").addClass("disabled");
+            $("#startIcon").prop("disabled", true);
+            $("#loggerDropdown").addClass("disabled");
+            $("#loggerDropdown").prop("disabled", true);
+            
+            var exceptionsOnly = $("#exceptionOnly").val();
+            var map = new Map();
+            putMap(map,"logger",loggerName);
+            putMap(map,"exceptionsOnly",exceptionsOnly);
+            var msg = createJsonMessage("start",map);
+            
+            webSocket.send(msg);
+            
+            $("#stopIcon").removeClass("disabled");
+            $("#stopIcon").prop("disabled", false);
+            $("#settingsIcon").removeClass("disabled");
+            $("#settingsIcon").prop("disabled", false);
+            
+            $("#loggerNameDiv").removeClass("error");
+        }else{
+            $("#loggerNameDiv").addClass("error");
+        }
+    }
+
+    function stopLog(){
+        var loggerName = $('#loggerDropdown').dropdown('get text');
+        
+        if(loggerName){
+            $("#stopIcon").addClass("disabled");
+            $("#stopIcon").prop("disabled", true);
+            $("#settingsIcon").addClass("disabled");
+            $("#settingsIcon").prop("disabled", true);
+
+            var map = new Map();
+            putMap(map,"logger",loggerName);
+            var msg = createJsonMessage("stop",map);
+            webSocket.send(msg);
+
+            $("#startIcon").removeClass("disabled");
+            $("#startIcon").prop("disabled", false);
+            $("#loggerDropdown").removeClass("disabled");
+            $("#loggerDropdown").prop("disabled", false);
+        }
+    }
+
     function toggleLogLevel(level){
         var map = new Map();
         putMap(map,"logLevel",level);
         var msg = createJsonMessage("setLogLevel",map);
         webSocket.send(msg);
     }
-
 
     function toggleExceptionsOnly(){
         var map = new Map();
@@ -215,82 +273,29 @@ var messages = document.getElementById("messages");
         }
     }
 
-    function closeSocket(){
-        webSocket.close();
-    }
-
     function writeResponse(text){
         messages.innerHTML += text;
-    }
-
-    function startLog(){
-        var loggerName = $('#loggerDropdown').dropdown('get text');
-        
-        if(loggerName){
-            $("#startIcon").addClass("disabled");
-            $("#startIcon").prop("disabled", true);
-            $("#loggerDropdown").addClass("disabled");
-            $("#loggerDropdown").prop("disabled", true);
-            
-            var exceptionsOnly = $("#exceptionOnly").val();
-            var map = new Map();
-            putMap(map,"logger",loggerName);
-            putMap(map,"exceptionsOnly",exceptionsOnly);
-            var msg = createJsonMessage("start",map);
-            webSocket.send(msg);
-
-            $("#stopIcon").removeClass("disabled");
-            $("#stopIcon").prop("disabled", false);
-            $("#settingsIcon").removeClass("disabled");
-            $("#settingsIcon").prop("disabled", false);
-            
-            $("#loggerNameDiv").removeClass("error");
-        }else{
-            $("#loggerNameDiv").addClass("error");
-        }
-    }
-
-    function stopLog(){
-        var loggerName = $('#loggerDropdown').dropdown('get text');
-        
-        if(loggerName){
-            $("#stopIcon").addClass("disabled");
-            $("#stopIcon").prop("disabled", true);
-            $("#settingsIcon").addClass("disabled");
-            $("#settingsIcon").prop("disabled", true);
-
-            var map = new Map();
-            putMap(map,"logger",loggerName);
-            var msg = createJsonMessage("stop",map);
-            webSocket.send(msg);
-
-            $("#startIcon").removeClass("disabled");
-            $("#startIcon").prop("disabled", false);
-            $("#loggerDropdown").removeClass("disabled");
-            $("#loggerDropdown").prop("disabled", false);
-        }
     }
 
     function putMap(map, key, value) {
         map.set(key, value);
     }
 
-    function map_to_object(map) {
+    function toObject(map) {
         const out = Object.create(null)
         map.forEach((value, key) => {
           if (value instanceof Map) {
-            out[key] = map_to_object(value)
-          }
-          else {
-            out[key] = value
+            out[key] = toObject(value);
+          } else {
+            out[key] = value;
           }
         })
-        return out
+        return out;
     }
 
     function createJsonMessage(doAction,params){
         putMap(params,"action",doAction);
-        var o = map_to_object(params);
+        var o = toObject(params);
         return JSON.stringify(o);  
     }
 
@@ -303,9 +308,9 @@ var messages = document.getElementById("messages");
         var loggerName = $('#loggerDropdown').dropdown('get text');
         if(loggerName){
             var url = contextRoot + "/servlet/stompee?action=getLoggerLevel&name=" + loggerName;
-            var level = httpGet(url);
-
-            messageLogLevel(level);
+            var resp = httpGet(url);
+            var levelJson = JSON.parse(resp);
+            messageLogLevel(levelJson.level);
 
             $('#modalSettings')
                 .modal({
@@ -353,24 +358,9 @@ var messages = document.getElementById("messages");
         if(level === "CONFIG")$("#buttonConfig").prop("checked", "checked");
     }
 
-
     function httpGet(theUrl){
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
         xmlHttp.send( null );
         return xmlHttp.responseText;
     }
-
-    $("#loggerDropdown").on('keyup', function (e) {
-        if (e.keyCode == 13) {
-            startLog();
-        }
-    });
-
-    window.onbeforeunload = function() {
-        closeSocket();
-    };
-    
-    $('#loggerDropdown')
-        .dropdown()
-    ;

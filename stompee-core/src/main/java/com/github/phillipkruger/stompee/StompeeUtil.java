@@ -33,7 +33,8 @@ public class StompeeUtil {
         return null;
     }
     
-    public Level getLevel(@NotNull Logger logger){
+    public Level getLevel(Logger logger){
+        if(logger==null || logger.getName().isEmpty())return Level.INFO; // Not sure about this 
         Level level = logger.getLevel();
         if(level==null && logger.getParent()!=null)return getLevel(logger.getParent());
         return level;
