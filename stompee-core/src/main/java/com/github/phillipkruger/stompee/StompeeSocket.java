@@ -148,7 +148,7 @@ public class StompeeSocket {
             session.getUserProperties().put(HANDLER, handler);
             session.getUserProperties().put(ID, uuid);
             session.getUserProperties().put(LOGGER_NAME, loggerName);           
-            session.getUserProperties().put(LOG_LEVEL, stompeeUtil.getLevel(logger));
+            session.getUserProperties().put(LOG_LEVEL, stompeeUtil.getLevel(logger).getName());
         }
     }
     
