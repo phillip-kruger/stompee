@@ -29,16 +29,12 @@ You can then go to the stompee ui :
 Stompee does not have it's own security. You should secure the the `/stompee` context within your own security model.
 
 ## Application Servers
-### Java EE 7
-Stompee has been tested using the following application servers:
+Stompee has been tested using the following Java EE 7 application servers:
 
 * [Wildfly 10.0.1](http://wildfly.org/)
 * [Payara 172](http://www.payara.fish/)
 * [Liberty 17.0.0.1](https://developer.ibm.com/assets/wasdev/#asset/runtimes-wlp-javaee7)
 * [TomEE 7.0.3](http://tomee.apache.org/)
-
-### Java EE 6
-At this time stompee does not work on Java EE 6. I might add a backport in later.
 
 ## Screenshots
 ![](https://raw.githubusercontent.com/phillip-kruger/stompee/master/Screenshot1.png)
