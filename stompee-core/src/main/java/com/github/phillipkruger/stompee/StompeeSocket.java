@@ -27,7 +27,7 @@ import lombok.extern.java.Log;
  * Websocket server that can distribute log messages.
  * If there is no subscribers, the logging fall back to normal file.
  * 
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @Log
 @ServerEndpoint("/socket/stompee") 

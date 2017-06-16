@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * To create a initial log level message
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @AllArgsConstructor @NoArgsConstructor
 public class LogLevelMessage extends SystemMessage {

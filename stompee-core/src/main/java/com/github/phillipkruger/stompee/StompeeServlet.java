@@ -17,7 +17,7 @@ import lombok.extern.java.Log;
  
 /** 
  * Simple Servlet for other data needed by the screen.
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @Log
 @WebServlet(value="/servlet/stompee", name="StompeeServlet") 
@@ -67,9 +67,9 @@ public class StompeeServlet extends HttpServlet {
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
         
         List<String> loggers = stompeeUtil.getAllLoggerNames();
-        for(String name:loggers){
+        loggers.forEach((name) -> {
             arrayBuilder.add(name);
-        }
+        });
         
         try(StringWriter stringWriter = new StringWriter(); 
             JsonWriter jsonWriter = Json.createWriter(stringWriter)){

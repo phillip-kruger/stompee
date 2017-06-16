@@ -50,7 +50,7 @@
     <developers>
         <developer>
             <name>Phillip Kruger</name>
-            <email>phillip.kruger@gmail.com</email>
+            <email>phillip.kruger@phillip-kruger.com</email>
             <organizationUrl>http://www.phillip-kruger.com</organizationUrl>
         </developer>
     </developers>
@@ -58,7 +58,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Java version -->
-        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         
         <!-- JEE Platform -->        

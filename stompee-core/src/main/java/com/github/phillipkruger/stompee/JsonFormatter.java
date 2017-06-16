@@ -19,7 +19,7 @@ import lombok.extern.java.Log;
 
 /**
  * Formatting log records into a json format
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @Log
 @AllArgsConstructor
@@ -66,9 +66,9 @@ public class JsonFormatter extends Formatter {
         addStacktrace(traces, t);
         
         JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        for(String trace:traces){
+        traces.forEach((trace) -> {
             arrayBuilder.add(trace);
-        }
+        });
         return arrayBuilder.build();
     }
     

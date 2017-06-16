@@ -6,7 +6,7 @@ import javax.json.JsonObjectBuilder;
 
 /**
  * To create a system message (not a log message)
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 public abstract class SystemMessage {
     

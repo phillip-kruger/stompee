@@ -8,7 +8,7 @@ import lombok.extern.java.Log;
  
 /** 
  * Log handler for Stompee
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @Log
 public class StompeeHandler extends Handler {
@@ -46,8 +46,7 @@ public class StompeeHandler extends Handler {
         Object filterProperty = session.getUserProperties().get(Settings.FILTER);
         if(filterProperty!=null){
             String filter = (String)filterProperty;
-            if(!filter.isEmpty() && logRecord.getMessage().contains(filter))return true;
-            return false;
+            return !filter.isEmpty() && logRecord.getMessage().contains(filter);
         }
         return true;
     }

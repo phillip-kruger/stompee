@@ -9,7 +9,7 @@ import lombok.Setter;
 
 /**
  * To create a startup message, to send system state
- * @author Phillip Kruger (phillip.kruger@gmail.com)
+ * @author Phillip Kruger (stompee@phillip-kruger.com)
  */
 @AllArgsConstructor @NoArgsConstructor
 public class StartupMessage extends SystemMessage {

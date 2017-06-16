@@ -3,7 +3,7 @@
 ![](https://github.com/phillip-kruger/stompee/blob/master/src/main/webapp/stompee/logo.png?raw=true)
 
 > A web log viewer for Jave EE.
-
+> stompee@phillip-kruger.com
 ***
 
 ## Quick Start
