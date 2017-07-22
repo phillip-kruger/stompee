@@ -31,7 +31,18 @@ $('document').ready(function () {
     var loggerName = getParameterByName('logger');
     if (loggerName) {
         $('#selectedLoggerName').text(loggerName);
+    }else{
+        // Else find default
+        var url = contextRoot + "/servlet/stompee?action=getDefaultSettings";
+        var defaultSettings = httpGet(url);
+        var defaultSettingsJson = JSON.parse(defaultSettings);
+    
+        var defaultLoggerName = defaultSettingsJson.name;
+        if (defaultLoggerName) {
+            $('#selectedLoggerName').text(defaultLoggerName);
+        }
     }
+    
     $('table').tablesort();
     // Make sure we stop the connection when the browser close
     window.onbeforeunload = function () {

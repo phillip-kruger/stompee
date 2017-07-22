@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import java.util.logging.MemoryHandler;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
@@ -32,8 +33,10 @@ import lombok.extern.java.Log;
 @Log
 @ServerEndpoint("/socket/stompee") 
 public class StompeeSocket {
-   
     private final StompeeUtil stompeeUtil = new StompeeUtil();
+    
+    @Inject
+    private StompeeProperties stompeeProperties;
     
     @OnOpen
     public void onOpen(Session session){
@@ -59,7 +62,6 @@ public class StompeeSocket {
                 stop(session);
             } else if(SET_LOG_LEVEL.equalsIgnoreCase(action)){
                 String levelName = jo.getString(LOG_LEVEL);
-                // TODO: Validate level
                 setLogLevel(session,levelName); 
             } else if(SET_EXCEPTIONS_ONLY.equalsIgnoreCase(action)){
                 Boolean exceptionsOnly = jo.getBoolean(Settings.EXCEPTIONS_ONLY);
@@ -77,6 +79,9 @@ public class StompeeSocket {
             uuid = UUID.randomUUID().toString();
             registerHandler(session,uuid,logger);
             SESSIONS.put(session.getId(), session);
+            // Set the default level
+            String levelName = stompeeProperties.getProperty("level", null);
+            if(levelName!=null && !levelName.isEmpty())setLogLevel(session,levelName); 
         }
     }
     
