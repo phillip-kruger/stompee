@@ -212,4 +212,5 @@ public class StompeeSocket {
     
     private static final String DOT = ".";
     private static final Map<String,Session> SESSIONS = new ConcurrentHashMap<>();
+    //private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
 }
