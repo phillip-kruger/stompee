@@ -1,2 +1,3 @@
 ## see https://travis-ci.org/phillip-kruger/stompee
 language: java
+script: mvn clean install -Drelease
