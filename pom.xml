@@ -86,7 +86,19 @@
     </dependencies>
     
     <profiles>
-        <!-- Activate using the release property: mvn clean install -Drelease -->
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.executable>gpg2</gpg.executable>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+            </properties>
+        </profile>
+  
+        
+        <!-- Activate using the release property: mvn clean install -Prelease -->
         <profile>
             <id>release</id>
             <activation>
