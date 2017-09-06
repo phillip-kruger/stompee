@@ -63,7 +63,7 @@
         
         <!-- JEE Platform -->        
         <jee.version>7.0</jee.version>
-        <lombok.version>1.16.16</lombok.version>
+        <lombok.version>1.16.18</lombok.version>
        
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
@@ -86,18 +86,6 @@
     </dependencies>
     
     <profiles>
-        <profile>
-            <id>ossrh</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <gpg.executable>gpg2</gpg.executable>
-                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
-            </properties>
-        </profile>
-  
-        
         <!-- Activate using the release property: mvn clean install -Prelease -->
         <profile>
             <id>release</id>
@@ -155,6 +143,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
+                        
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
