@@ -1,9 +1,43 @@
 ## see https://travis-ci.org/phillip-kruger/stompee
 language: java
-script: mvn clean install -DskipTests=true
+
+## export GPG details
+before_install:
+    - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+    - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+
+install:
+    mvn --settings .maven.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
+
+## Build and release to maven central  
+script: 
+    mvn clean deploy --settings .maven.xml -DskipTests=true -B -U -Prelease
+
+## Get the project version
+before_deploy:
+    - mvn help:evaluate -N -Dexpression=project.version|grep -v '\['
+    - export project_version=$(mvn help:evaluate -N -Dexpression=project.version|grep -v '\[')
+
+## Create release in GitHub
+deploy:
+    provider: releases
+    api_key:
+        secure: m724xQTThYZL7NmRiaTQWBpCV7KpHKKMyvgW///uQg4F4ay3EVE2DmCt1OvfyfYOJ4yUeZolSYOiIa7I+Zwc6EqD67LOMAGMCMiU3pZ7JdBvJHNkGW9PCekNVhXkuFhA6muhSGxgbUP5iPLNFBIoEj7ZZ2iEVieZpRS2KEppv0QqE1L280cBhE8QNOndFM+MjQCJaxxQjeVPjYxVpNVzrgyxgdwI4FjBPgjBj46CIqutklCUEum2j39U2qjjtKsC1OibtQIqR/S05rSq4EazsV1+f4Lbw2IZui47EnY2cUCW29swy7q28fduDeYwo2FxA9wb/ikmnRJFR2t73ng6KRuLSel/+8mUW/hJrIVsmTH7zwH6JUKmNfss7hTvC6oKf1Uo9+CqyVSWZPpz9aYeirMi7I2dY2tRdkiEiOefDA+bq98ze5XUgmQTMno2jDu1283YHDnIKFHvHHKYflsPXkL63r/RH2UNB7vO4A2SS1/IXrJSV8L0JjVWXYney1xKkvxGxQ9aG0sw5fJyY73i7oaNxQn4YmOdJJJ9maLvPiv0fZAj6KhJkjONDlLlbwk0E09APGqAj4UxyJhIOfPrsomglCJMcDuiRrg+D1tWclEIcO3GU+IzWhJ99l/QqKlmSHAwFpXmUzhLSs40y4xokf2XNgh6vRDQORLkufS6AAs=
+    file: 
+        - stompee-core/target/stompee-core-$project_version.jar
+        - stompee-example/target/stompee-example.war
+        - stompee-standalone/target/stompee-standalone.war
+    skip_cleanup: true    
+    on:
+        repo: phillip-kruger/stompee
+    name: $project_version
+    
 cache:
-  directories:
-    - ~/.m2/repository
+    directories:
+        - ~/.m2/repository
+
+# Send a slack notification    
 notifications:
-  email: false
-  slack: phillip-kruger:WczHYvnssHAA74KU1MWDyHiR
+    email: false
+    slack:
+secure: rYI40a4SNn6S9cHbX5PyLmGj2C/aCPEr6R6AlXFxCGQ2ynzSRJvtOvHs2SCg91pCa912zeii01CzxGuT7JKq5P6ZsgBlD4XtaZUqduejBthyiHisYnQmiPsY4N0Ma0grk6bGY1gAS0eXOTaci7a9YhfceuTgDcytPfOGXPutipJ33zwRZ9YEcuikeM7Or34Ru8A8xb75XCU+lC5Xo4Td/7Km8Dav7xgzJWUAMmK6QT3PROgNcgbUdQ0DzAujmaIKi4hL75Nj0QDMr/eC3i7V3nGLrhjr8Fu6dyMHKLySgRit7eEPjC1llzalf/M6mwAI7EEcpdK9JihpVqwdDeCnePrcTHRW92bblmevXcc89yAYRn/6ypJ08qD+USoZBgU4KO9W1Qu/txod9/UBbyophTUptBOsEStIlYAmJ0vKxvMvak3zY/qdGexm1ynX3ENUbmP6D2+iwPzBrAikxvAgCSasOGSVy4uGOBvSay1HX7BMm6/N1plr+rvCnaJdfu9lQlR0jWzhaSZ0qfbiO++AaXOkeTyqPLgFItVl3d0upwOEjDwlm1c441NxlwayexC+OaQMgSfu4KCuAop83DaaOR2lp0Wz/RbkbXzhRxhqxJTrRK9OnNzWSqDOwYRE7bVpbJxE1DV1CnY5ROwswExKCZ9DG6GDgjqt06Emxo20Wuo=

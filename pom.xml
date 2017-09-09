@@ -86,7 +86,7 @@
     </dependencies>
     
     <profiles>
-        <!-- Activate using the release property: mvn clean install -Prelease -->
+        <!-- Activate using the release property: mvn clean install -P release -->
         <profile>
             <id>release</id>
             <activation>
